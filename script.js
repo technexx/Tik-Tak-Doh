@@ -36,5 +36,6 @@ const boardDom = (() => {
         content.appendChild(button)
         console.log(button)
     }
-})()
 
+    container.appendChild(content)
+})()

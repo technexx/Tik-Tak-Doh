@@ -1,0 +1,9 @@
+.container .squares{
+    display: grid;
+    grid-template-rows: repeat(3, 100px);
+    grid-template-columns: repeat(3, 100px);
+}
+
+.container button {
+
+}
