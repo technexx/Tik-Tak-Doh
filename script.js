@@ -1,9 +1,11 @@
-//Todo: Grid layout takes care of square placement. Can simply store squares in array.
+
+const container = document.querySelector(".container")
+
 let EMPTY_SQUARE = 0
 let PLAYER_SQUARE = 1
 let OPPONENT_SQUARE = 2
 
-const StartingBoard = (index) => {
+const gameBoard = (() => {
     let boardArray = []
 
     for (let i=0; i<9; i++) {
@@ -20,10 +22,19 @@ const StartingBoard = (index) => {
         console.log("array after opponent move is " + boardArray)
     }
 
-    return {playerMove, opponentMove}
-}
+    return {playerMove, opponentMove, boardArray}
+})()
 
-const gameTurn = StartingBoard()
+const boardDom = (() => {
+    const content = document.createElement("div")
+    content.classList.add("squares")
 
-gameTurn.playerMove(5)
-gameTurn.opponentMove(4)
+    //Todo: Nine buttons, each appended to content div.
+    for (let i=0; i<gameBoard.boardArray.length; i++) {
+        const button = document.createElement("button")
+        button.setAttribute("id", "square-button " + (i+1))
+        content.appendChild(button)
+        console.log(button)
+    }
+})()
+
