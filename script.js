@@ -23,8 +23,13 @@ const gameBoard = (() => {
     }
 
     const opponentMove = (index) => {
-        boardArray.splice(index, 1, OPPONENT_SQUARE)
-    }
+        if (spaceFree(boardArray[index])) {
+            boardArray.splice(index, 1, OPPONENT_SQUARE)
+            fillSquare(index)
+            console.log("array is " + boardArray)
+        } else {
+            console.log("space occupied!")
+        }    }
 
     const spaceFree = (index) => { return index === 0 }
     return {playerMove, opponentMove, boardArray}
@@ -52,9 +57,7 @@ const boardDom = (() => {
 
 const fillSquare = (index) => {
     const buttons = document.querySelectorAll("[id^='square-button']")
-    buttons[index].style.background="url(./images/o-icon.svg)"
-
-    console.log(buttons)
+    buttons[index].style.backgroundImage="url(./images/o-icon.svg)"
 }
 
 const Player = (name) => {
