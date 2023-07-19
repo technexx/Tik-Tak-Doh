@@ -6,14 +6,7 @@ let EMPTY_SQUARE = 0
 let PLAYER_SQUARE = 1
 let OPPONENT_SQUARE = 2
 
-const currentTurn = (() => {
-    let playerTurn = false
-    let opponentTurn = false
-
-    // const nextTurn = whoseTurn => {
-    //     if (gameBoard.boardArray)
-    // }
-})()
+heading.innerText = "Player Turn"
 
 const gameBoard = (() => {
     let boardArray = []
@@ -26,12 +19,11 @@ const gameBoard = (() => {
         if (spaceFree(boardArray[index])) {
             boardArray.splice(index, 1, PLAYER_SQUARE)
             fillSquare(index)
+            currentTurn()
             console.log("array is " + boardArray)
         } else {
             console.log("space occupied!")
         }
-
-        console.log(boardHasOddEmptySpaces())
     }
 
     const opponentMove = (index) => {
@@ -41,13 +33,22 @@ const gameBoard = (() => {
             console.log("array is " + boardArray)
         } else {
             console.log("space occupied!")
-        }    }
+        }    
+    }
 
     const spaceFree = (index) => { return index === 0 }
     return {playerMove, opponentMove, boardArray}
 })()
 
-const boardHasOddEmptySpaces = (() => {
+function currentTurn() {
+    if (boardHasOddEmptySpaces()) {
+        heading.innerText = "Player Turn"
+    } else {
+        heading.innerText = "Opponent Turn"
+    }
+}
+
+function boardHasOddEmptySpaces() {
     let emptySpaces = 0
     for (let i=0; i<gameBoard.boardArray.length; i++) {
         if (gameBoard.boardArray[i] === 0) emptySpaces++
@@ -55,7 +56,7 @@ const boardHasOddEmptySpaces = (() => {
 
     console.log(emptySpaces)
     if (emptySpaces % 2 !== 0) return true; else return false
-})
+}
 
 const eventListeners = ((button, index) => {
     button.addEventListener("click", () => {
