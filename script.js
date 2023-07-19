@@ -1,9 +1,19 @@
 
+const heading = document.querySelector("#heading")
 const container = document.querySelector(".container")
 
 let EMPTY_SQUARE = 0
 let PLAYER_SQUARE = 1
 let OPPONENT_SQUARE = 2
+
+const currentTurn = (() => {
+    let playerTurn = false
+    let opponentTurn = false
+
+    // const nextTurn = whoseTurn => {
+    //     if (gameBoard.boardArray)
+    // }
+})()
 
 const gameBoard = (() => {
     let boardArray = []
@@ -20,6 +30,8 @@ const gameBoard = (() => {
         } else {
             console.log("space occupied!")
         }
+
+        console.log(boardHasOddEmptySpaces())
     }
 
     const opponentMove = (index) => {
@@ -34,6 +46,16 @@ const gameBoard = (() => {
     const spaceFree = (index) => { return index === 0 }
     return {playerMove, opponentMove, boardArray}
 })()
+
+const boardHasOddEmptySpaces = (() => {
+    let emptySpaces = 0
+    for (let i=0; i<gameBoard.boardArray.length; i++) {
+        if (gameBoard.boardArray[i] === 0) emptySpaces++
+    }
+
+    console.log(emptySpaces)
+    if (emptySpaces % 2 !== 0) return true; else return false
+})
 
 const eventListeners = ((button, index) => {
     button.addEventListener("click", () => {
