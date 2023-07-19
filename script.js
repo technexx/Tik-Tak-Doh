@@ -15,6 +15,7 @@ const gameBoard = (() => {
     const playerMove = (index) => {
         if (spaceFree(boardArray[index])) {
             boardArray.splice(index, 1, PLAYER_SQUARE)
+            fillSquare(index)
             console.log("array is " + boardArray)
         } else {
             console.log("space occupied!")
@@ -31,7 +32,6 @@ const gameBoard = (() => {
 
 const eventListeners = ((button, index) => {
     button.addEventListener("click", () => {
-        console.log("clicked button " + index)
         gameBoard.playerMove(index)
     })
 })
@@ -42,14 +42,20 @@ const boardDom = (() => {
 
     for (let i=0; i<gameBoard.boardArray.length; i++) {
         const button = document.createElement("button")
-        button.setAttribute("id", "square-button " + (i+1))
+        button.setAttribute("id", "square-button " + (i+1))        
         content.appendChild(button)
-
-        eventListeners(button, (i+1))
+        eventListeners(button, (i))
     }
 
     container.appendChild(content)
 })()
+
+const fillSquare = (index) => {
+    const buttons = document.querySelectorAll("[id^='square-button']")
+    buttons[index].style.background="url(./images/o-icon.svg)"
+
+    console.log(buttons)
+}
 
 const Player = (name) => {
     let wins = 0
