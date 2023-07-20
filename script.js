@@ -18,9 +18,8 @@ const gameBoard = (() => {
     const playerMove = (index) => {
         if (spaceFree(boardArray[index])) {
             boardArray.splice(index, 1, PLAYER_SQUARE)
-            fillSquare(index)
-            currentTurn()
-            console.log("array is " + boardArray)
+            fillPlayerSquare(index)
+            console.log("array from player move is " + boardArray)
         } else {
             console.log("space occupied!")
         }
@@ -29,8 +28,8 @@ const gameBoard = (() => {
     const opponentMove = (index) => {
         if (spaceFree(boardArray[index])) {
             boardArray.splice(index, 1, OPPONENT_SQUARE)
-            fillSquare(index)
-            console.log("array is " + boardArray)
+            fillOpponentSquare(index)
+            console.log("array from opponent move is " + boardArray)
         } else {
             console.log("space occupied!")
         }    
@@ -39,14 +38,6 @@ const gameBoard = (() => {
     const spaceFree = (index) => { return index === 0 }
     return {playerMove, opponentMove, boardArray}
 })()
-
-function currentTurn() {
-    if (boardHasOddEmptySpaces()) {
-        heading.innerText = "Player Turn"
-    } else {
-        heading.innerText = "Opponent Turn"
-    }
-}
 
 function boardHasOddEmptySpaces() {
     let emptySpaces = 0
@@ -58,11 +49,37 @@ function boardHasOddEmptySpaces() {
     if (emptySpaces % 2 !== 0) return true; else return false
 }
 
-const eventListeners = ((button, index) => {
+function eventListeners (button, index) {
     button.addEventListener("click", () => {
-        gameBoard.playerMove(index)
+        if (boardHasOddEmptySpaces()) {
+            heading.innerText = "Player Turn"
+            gameBoard.playerMove(index)
+        } else {
+            heading.innerText = "Opponent Turn"
+            gameBoard.opponentMove(index)
+        }
     })
-})
+}
+
+function fillPlayerSquare (index)  {
+    const buttons = document.querySelectorAll("[id^='square-button']")
+    buttons[index].style.backgroundImage="url(./images/o-icon.svg)"
+}
+
+function fillOpponentSquare (index)  {
+    const buttons = document.querySelectorAll("[id^='square-button']")
+
+    //Todo: o-icon works
+    buttons[index].style.backgroundImage="url(./images/x-icon.svg)"
+}
+
+const Player = (name) => {
+    let wins = 0
+    let losses = 0
+    let ties = 0
+
+    return {wins, losses, ties}
+}
 
 const boardDom = (() => {
     const content = document.createElement("div")
@@ -77,16 +94,3 @@ const boardDom = (() => {
 
     container.appendChild(content)
 })()
-
-const fillSquare = (index) => {
-    const buttons = document.querySelectorAll("[id^='square-button']")
-    buttons[index].style.backgroundImage="url(./images/o-icon.svg)"
-}
-
-const Player = (name) => {
-    let wins = 0
-    let losses = 0
-    let ties = 0
-
-    return {wins, losses, ties}
-}
