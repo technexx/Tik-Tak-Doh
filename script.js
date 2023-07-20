@@ -81,13 +81,13 @@ function checkGameWin() {
 
     const allWinsArray = [ [0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6] ]
 
+    //Todo: win value gets overridden since loop continues
     for (let i=0; i<allWinsArray.length; i++) {
-        console.log("player array is " + gameBoard.playerArray)
-        console.log("all wins array is " + allWinsArray[i])
-
-        if (gameBoard.playerArray.every(array => allWinsArray[i].includes(array))) valueToReturn = "Player Win!"; 
-        else if (gameBoard.opponentArray.every(array => allWinsArray[i].includes(array))) valueToReturn = "Opponent Win!";
-        else valueToReturn = "No win!"        
+        if (allWinsArray[i].every(array => gameBoard.playerArray.includes(array))) {
+            valueToReturn = "Player Win"
+        } else  if (allWinsArray[i].every(array => gameBoard.opponentArray.includes(array))) {
+            valueToReturn = "Opponent Win"
+        }    
     }
 
     // console.log("wins array is " + allWinsArray)
