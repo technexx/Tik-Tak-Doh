@@ -12,7 +12,7 @@ const GameBoard = (() => {
     let boardArray = []
     let playerArray = []
     let opponentArray = []
-    let winState = ""
+    let winState = "hello"
 
     for (let i=0; i<9; i++) {
         boardArray.push(EMPTY_SQUARE)
@@ -23,7 +23,7 @@ const GameBoard = (() => {
             boardArray.splice(index, 1, PLAYER_SQUARE)
             playerArray.push(index)
             fillPlayerSquare(index)
-            winState = checkGameWin()
+            displayGameStatus("Player's Turn")
         } else {
             console.log("space occupied!")
         }
@@ -34,7 +34,7 @@ const GameBoard = (() => {
             boardArray.splice(index, 1, OPPONENT_SQUARE)
             opponentArray.push(index)
             fillOpponentSquare(index)
-            winState = checkGameWin()
+            displayGameStatus("Opponent's Turn")
         } else {
             console.log("space occupied!")
         }
@@ -45,23 +45,29 @@ const GameBoard = (() => {
     return {playerMove, opponentMove, boardArray, playerArray,opponentArray, winState}
 })()
 
-const GameState = () => {
-    let playerWin = ""
+//Todo: We're calling this BEFORE the return value of winState. No, that's not it because moving it this to eventListeners doesn't fix.
 
-
-}
+//Todo: heading's text displays on final square fill, so overrides win text.
+function displayGameStatus(whoseTurn) {
+    console.log(boardIsFull)
+    if (!boardIsFull()) {
+        heading.innerText = whoseTurn
+    } else {
+        heading.innerText = checkGameWin()
+    }
+}   
 
 function eventListeners (button, index) {
     button.addEventListener("click", () => {
         if (!boardIsFull()) {
             if (boardHasOddEmptySpaces()) {
                 GameBoard.playerMove(index)
-                heading.innerText = "Opponent Turn"
             } else {
                 GameBoard.opponentMove(index)
-                heading.innerText = "Player Turn"
             }
-        } else console.log("board is full")
+        } else {
+            console.log("board is full")
+        }
     })
 }
 
@@ -86,7 +92,7 @@ function boardHasOddEmptySpaces() {
 function boardIsFull() { return !GameBoard.boardArray.includes(0) }
 
 function checkGameWin() {
-    let valueToReturn = ""
+    let valueToReturn = "Tie"
 
     const allWinsArray = [ [0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6] ]
 
@@ -100,11 +106,7 @@ function checkGameWin() {
         }
     }
 
-    // if (!GameBoard.boardArray.includes(0) && valueToReturn === "") {
-    //     console.log("yes")
-    // }
-
-    console.log(valueToReturn)
+    console.log("winner is " + valueToReturn)
     return valueToReturn
 }
 
