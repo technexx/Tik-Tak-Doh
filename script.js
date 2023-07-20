@@ -1,12 +1,14 @@
 
 const heading = document.querySelector("#heading")
 const container = document.querySelector(".container")
+const playerStatsText = document.querySelector("#win-count")
 
 let EMPTY_SQUARE = 0
 let PLAYER_SQUARE = 1
 let OPPONENT_SQUARE = 2
 
-heading.innerText = "Player Turn"
+heading.innerText = "Player's Turn"
+playerStatsText.innerText = "0 - 0 - 0"
 
 const GameBoard = (() => {
     let boardArray = []
@@ -45,17 +47,31 @@ const GameBoard = (() => {
     return {playerMove, opponentMove, boardArray, playerArray,opponentArray, winState}
 })()
 
-//Todo: We're calling this BEFORE the return value of winState. No, that's not it because moving it this to eventListeners doesn't fix.
+const Player = () => {
+    let wins = 0
+    let losses = 0
+    let ties = 0
 
-//Todo: heading's text displays on final square fill, so overrides win text.
+    return {wins, losses, ties}
+}
+
 function displayGameStatus(whoseTurn) {
-    console.log(boardIsFull)
     if (!boardIsFull()) {
         heading.innerText = whoseTurn
     } else {
         heading.innerText = checkGameWin()
+        updatePlayerRecord()
     }
 }   
+
+function updatePlayerRecord() {
+    const player = Player()
+    if (checkGameWin() === "Player Win") player.wins++
+    if (checkGameWin() === "Opponent Win") player.losses++
+    if (checkGameWin() === "Tie") player.ties++
+
+    playerStatsText.innerText = player.wins + " - " + player.losses + " - " + player.ties
+}
 
 function eventListeners (button, index) {
     button.addEventListener("click", () => {
@@ -106,16 +122,7 @@ function checkGameWin() {
         }
     }
 
-    console.log("winner is " + valueToReturn)
     return valueToReturn
-}
-
-const PlayerRecord = (name) => {
-    let wins = 0
-    let losses = 0
-    let ties = 0
-
-    return {wins, losses, ties}
 }
 
 const boardDom = (() => {
