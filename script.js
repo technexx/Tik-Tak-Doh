@@ -8,10 +8,11 @@ let OPPONENT_SQUARE = 2
 
 heading.innerText = "Player Turn"
 
-const gameBoard = (() => {
+const GameBoard = (() => {
     let boardArray = []
     let playerArray = []
-    let opponentArray =[]
+    let opponentArray = []
+    let winState = ""
 
     for (let i=0; i<9; i++) {
         boardArray.push(EMPTY_SQUARE)
@@ -22,6 +23,7 @@ const gameBoard = (() => {
             boardArray.splice(index, 1, PLAYER_SQUARE)
             playerArray.push(index)
             fillPlayerSquare(index)
+            winState = checkGameWin()
         } else {
             console.log("space occupied!")
         }
@@ -32,28 +34,34 @@ const gameBoard = (() => {
             boardArray.splice(index, 1, OPPONENT_SQUARE)
             opponentArray.push(index)
             fillOpponentSquare(index)
+            winState = checkGameWin()
         } else {
             console.log("space occupied!")
-        }    
+        }
     }
 
     function isSpaceFree(index) { return index === 0 }
 
-    return {playerMove, opponentMove, boardArray, playerArray ,opponentArray}
+    return {playerMove, opponentMove, boardArray, playerArray,opponentArray, winState}
 })()
+
+const GameState = () => {
+    let playerWin = ""
+
+
+}
 
 function eventListeners (button, index) {
     button.addEventListener("click", () => {
-        if (boardHasOddEmptySpaces()) {
-            gameBoard.playerMove(index)
-            heading.innerText = "Opponent Turn"
-        } else {
-            gameBoard.opponentMove(index)
-            heading.innerText = "Player Turn"
-        }
-        if (gameBoard.playerArray.length >= 3 || gameBoard.opponentArray.length >=3){
-            checkGameWin()
-        }
+        if (!boardIsFull()) {
+            if (boardHasOddEmptySpaces()) {
+                GameBoard.playerMove(index)
+                heading.innerText = "Opponent Turn"
+            } else {
+                GameBoard.opponentMove(index)
+                heading.innerText = "Player Turn"
+            }
+        } else console.log("board is full")
     })
 }
 
@@ -69,30 +77,32 @@ function fillOpponentSquare (index)  {
 
 function boardHasOddEmptySpaces() {
     let emptySpaces = 0
-    for (let i=0; i<gameBoard.boardArray.length; i++) {
-        if (gameBoard.boardArray[i] === 0) emptySpaces++
+    for (let i=0; i<GameBoard.boardArray.length; i++) {
+        if (GameBoard.boardArray[i] === 0) emptySpaces++
     }
-
     if (emptySpaces % 2 !== 0) return true; else return false
 }
+
+function boardIsFull() { return !GameBoard.boardArray.includes(0) }
 
 function checkGameWin() {
     let valueToReturn = ""
 
     const allWinsArray = [ [0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6] ]
 
-    //Todo: win value gets overridden since loop continues
     for (let i=0; i<allWinsArray.length; i++) {
-        if (allWinsArray[i].every(array => gameBoard.playerArray.includes(array))) {
+        if (allWinsArray[i].every(array => GameBoard.playerArray.includes(array))) {
             valueToReturn = "Player Win"
-        } else  if (allWinsArray[i].every(array => gameBoard.opponentArray.includes(array))) {
+        }
+
+        if (allWinsArray[i].every(array => GameBoard.opponentArray.includes(array))) {
             valueToReturn = "Opponent Win"
-        }    
+        }
     }
 
-    // console.log("wins array is " + allWinsArray)
-    // console.log("player array is " + gameBoard.playerArray)
-    // console.log("opponent array is " + gameBoard.opponentArray)
+    // if (!GameBoard.boardArray.includes(0) && valueToReturn === "") {
+    //     console.log("yes")
+    // }
 
     console.log(valueToReturn)
     return valueToReturn
@@ -110,7 +120,7 @@ const boardDom = (() => {
     const content = document.createElement("div")
     content.classList.add("squares")
 
-    for (let i=0; i<gameBoard.boardArray.length; i++) {
+    for (let i=0; i<GameBoard.boardArray.length; i++) {
         const button = document.createElement("button")
         button.setAttribute("id", "square-button " + (i+1))        
         content.appendChild(button)
