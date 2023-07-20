@@ -39,16 +39,6 @@ const gameBoard = (() => {
     return {playerMove, opponentMove, boardArray}
 })()
 
-function boardHasOddEmptySpaces() {
-    let emptySpaces = 0
-    for (let i=0; i<gameBoard.boardArray.length; i++) {
-        if (gameBoard.boardArray[i] === 0) emptySpaces++
-    }
-
-    console.log(emptySpaces)
-    if (emptySpaces % 2 !== 0) return true; else return false
-}
-
 function eventListeners (button, index) {
     button.addEventListener("click", () => {
         if (boardHasOddEmptySpaces()) {
@@ -61,6 +51,7 @@ function eventListeners (button, index) {
     })
 }
 
+
 function fillPlayerSquare (index)  {
     const buttons = document.querySelectorAll("[id^='square-button']")
     buttons[index].style.backgroundImage="url(./images/o-icon.svg)"
@@ -71,6 +62,15 @@ function fillOpponentSquare (index)  {
 
     //Todo: o-icon works
     buttons[index].style.backgroundImage="url(./images/x-icon.svg)"
+}
+
+function boardHasOddEmptySpaces() {
+    let emptySpaces = 0
+    for (let i=0; i<gameBoard.boardArray.length; i++) {
+        if (gameBoard.boardArray[i] === 0) emptySpaces++
+    }
+
+    if (emptySpaces % 2 !== 0) return true; else return false
 }
 
 const Player = (name) => {
