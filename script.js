@@ -2,6 +2,7 @@
 const heading = document.querySelector("#heading")
 const container = document.querySelector(".container")
 const playerStatsText = document.querySelector("#win-count")
+const resetButton = document.querySelector("#reset-button")
 
 let EMPTY_SQUARE = 0
 let PLAYER_SQUARE = 1
@@ -9,6 +10,10 @@ let OPPONENT_SQUARE = 2
 
 heading.innerText = "Player's Turn"
 playerStatsText.innerText = "0 - 0 - 0"
+
+resetButton.addEventListener("click", () => {
+    console.log("clic")
+})
 
 const GameBoard = (() => {
     let boardArray = []
