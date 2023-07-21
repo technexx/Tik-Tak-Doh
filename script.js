@@ -11,20 +11,22 @@ let OPPONENT_SQUARE = 2
 heading.innerText = "Player's Turn"
 playerStatsText.innerText = "0 - 0 - 0"
 
-resetButton.addEventListener("click", () => {
-    console.log("clic")
-})
-
 const GameBoard = (() => {
     let boardArray = []
     let playerArray = []
     let opponentArray = []
-    let winState = "hello"
 
     for (let i=0; i<9; i++) {
         boardArray.push(EMPTY_SQUARE)
     }
 
+    const clearBoard = () => {
+        boardArray = []
+        for (let i=0; i<9; i++) {
+            boardArray.push(EMPTY_SQUARE)
+        }
+    }
+        
     const playerMove = (index) => {
         if (isSpaceFree(boardArray[index])) {
             boardArray.splice(index, 1, PLAYER_SQUARE)
@@ -49,7 +51,7 @@ const GameBoard = (() => {
 
     function isSpaceFree(index) { return index === 0 }
 
-    return {playerMove, opponentMove, boardArray, playerArray,opponentArray, winState}
+    return {playerMove, opponentMove, boardArray, playerArray,opponentArray, clearBoard}
 })()
 
 const Player = () => {
@@ -92,12 +94,12 @@ function eventListeners (button, index) {
     })
 }
 
-function fillPlayerSquare (index)  {
+function fillPlayerSquare (index) {
     const buttons = document.querySelectorAll("[id^='square-button']")
     buttons[index].style.backgroundImage="url(./images/o-icon.svg)"
 }
 
-function fillOpponentSquare (index)  {
+function fillOpponentSquare (index) {
     const buttons = document.querySelectorAll("[id^='square-button']")
     buttons[index].style.backgroundImage="url(./images/x-icon.svg)"
 }
@@ -130,11 +132,24 @@ function checkGameWin() {
     return valueToReturn
 }
 
+resetButton.addEventListener("click", () => {
+    GameBoard.clearBoard()
+    clearSquares()
+    console.log("click")
+})
+
+function clearSquares() {
+    const buttons = document.querySelectorAll("[id^='square-button']")
+    for (let i=0; i<buttons.length; i++) {
+        buttons[i].style.backgroundImage = ""
+    }
+}
+
 const boardDom = (() => {
     const content = document.createElement("div")
     content.classList.add("squares")
 
-    for (let i=0; i<GameBoard.boardArray.length; i++) {
+    for (let i=0; i<9; i++) {
         const button = document.createElement("button")
         button.setAttribute("id", "square-button " + (i+1))        
         content.appendChild(button)
