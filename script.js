@@ -21,9 +21,8 @@ const GameBoard = (() => {
     }
 
     const clearBoard = () => {
-        boardArray = []
-        for (let i=0; i<9; i++) {
-            boardArray.push(EMPTY_SQUARE)
+        for (let i=0; i<boardArray.length; i++) {
+            boardArray.splice(i, 1, 0)
         }
     }
         
@@ -82,7 +81,7 @@ function updatePlayerRecord() {
 
 function eventListeners (button, index) {
     button.addEventListener("click", () => {
-        if (!boardIsFull()) {
+        if (!boardIsFull()) {            
             if (boardHasOddEmptySpaces()) {
                 GameBoard.playerMove(index)
             } else {
@@ -106,6 +105,8 @@ function fillOpponentSquare (index) {
 
 function boardHasOddEmptySpaces() {
     let emptySpaces = 0
+
+    console.log("board array accessed from function is " + GameBoard.boardArray)
     for (let i=0; i<GameBoard.boardArray.length; i++) {
         if (GameBoard.boardArray[i] === 0) emptySpaces++
     }
@@ -135,13 +136,13 @@ function checkGameWin() {
 resetButton.addEventListener("click", () => {
     GameBoard.clearBoard()
     clearSquares()
-    console.log("click")
+    heading.innerText = "Player's Turn"
 })
 
-function clearSquares() {
+function clearSquares () {
     const buttons = document.querySelectorAll("[id^='square-button']")
     for (let i=0; i<buttons.length; i++) {
-        buttons[i].style.backgroundImage = ""
+        buttons[i].style.backgroundImage="url()"
     }
 }
 
