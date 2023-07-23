@@ -34,7 +34,6 @@ const Player = () => {
 }
 
 const GameBoard = (() => {
-    //Can use this to keep a stable access to Player. We COULD have it as a module like GameBoard, but it's better to keep options open for multiple players.
     const player = Player()
 
     let boardArray = []
@@ -82,11 +81,10 @@ function eventListeners (button, index) {
         if (GameBoard.gameIsActive) {
             if (!boardIsFull()) {
                 if (boardHasOddEmptySpaces()) {
-                    GameBoard.playerMove(index)
-                    heading.innerText = "Opponent's Turn"
+                    playerMove(index)
+                    aiMove()
                 } else {
-                    GameBoard.opponentMove(index)
-                    heading.innerText = "Player's Turn"
+
                 }
                 if (checkGameWin() !== "Tie") {
                     updatePlayerRecord()
@@ -106,6 +104,23 @@ function eventListeners (button, index) {
         }
     })
 }
+
+function playerMove(index) {
+    GameBoard.playerMove(index)
+    heading.innerText = "Opponent's Turn"
+}
+
+function aiMove() { setTimeout(function() {
+    let randomInt = getRandomInt(9)
+    console.log(randomInt)
+    GameBoard.opponentMove(randomInt)
+    heading.innerText = "Player's Turn"
+    }, 1000) 
+}
+
+function getRandomInt(max) {
+    return Math.floor(Math.random() * max);
+  }
 
 function fillPlayerSquare (index) {
     const buttons = document.querySelectorAll("[id^='square-button']")
