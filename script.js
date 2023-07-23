@@ -65,8 +65,6 @@ const GameBoard = (() => {
         }
     }
 
-    function isSpaceFree(index) { return index === 0 }
-
     const updateWins = (whoWins) => {
         if (whoWins === "Player") player.wins ++
         if (whoWins === "Opponent") player.losses ++
@@ -110,13 +108,30 @@ function playerMove(index) {
     heading.innerText = "Opponent's Turn"
 }
 
-function aiMove() { setTimeout(function() {
+function aiMove() { 
     let randomInt = getRandomInt(9)
-    console.log(randomInt)
-    GameBoard.opponentMove(randomInt)
-    heading.innerText = "Player's Turn"
+    console.log("first roll is " + randomInt)
+    console.log("board array is " + GameBoard.boardArray)
+
+    while (!isSpaceFree(GameBoard.boardArray[randomInt])) {
+        randomInt = getRandomInt(9)
+        console.log("re-rolling at " + randomInt)
+    }
+
+    setTimeout(function() {
+        GameBoard.opponentMove(randomInt)
+        heading.innerText = "Player's Turn"
     }, 1000) 
+
+    // if (boardArray.isSpaceFree(randomInt)) {
+    //     setTimeout(function() {
+    //         GameBoard.opponentMove(randomInt)
+    //         heading.innerText = "Player's Turn"
+    //     }, 1000) 
+    // }
 }
+
+function isSpaceFree(index) { return index === 0 }
 
 function getRandomInt(max) {
     return Math.floor(Math.random() * max);
