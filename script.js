@@ -80,14 +80,10 @@ function eventListeners (button, index) {
             if (!boardIsFull()) {
                 if (boardHasOddEmptySpaces()) {
                     playerMove(index)
-                    aiMove()
-                } else {
-
                 }
-                if (checkGameWin() !== "Tie") {
-                    updatePlayerRecord()
-                    heading.innerText = checkGameWin()
-                    GameBoard.gameIsActive = false
+                endGameIfWon()
+                if (!boardIsFull()) {
+                    aiMove()
                 }
             } else {
                 console.log("board is full")
@@ -110,25 +106,27 @@ function playerMove(index) {
 
 function aiMove() { 
     let randomInt = getRandomInt(9)
-    console.log("first roll is " + randomInt)
-    console.log("board array is " + GameBoard.boardArray)
 
     while (!isSpaceFree(GameBoard.boardArray[randomInt])) {
         randomInt = getRandomInt(9)
-        console.log("re-rolling at " + randomInt)
     }
 
     setTimeout(function() {
         GameBoard.opponentMove(randomInt)
-        heading.innerText = "Player's Turn"
+        endGameIfWon()
+        if (GameBoard.gameIsActive) {
+            heading.innerText = "Player's Turn"
+        }
     }, 1000) 
+}
 
-    // if (boardArray.isSpaceFree(randomInt)) {
-    //     setTimeout(function() {
-    //         GameBoard.opponentMove(randomInt)
-    //         heading.innerText = "Player's Turn"
-    //     }, 1000) 
-    // }
+function endGameIfWon() {
+    console.log("checking win")
+    if (checkGameWin() !== "Tie") {
+        updatePlayerRecord()
+        heading.innerText = checkGameWin()
+        GameBoard.gameIsActive = false
+    }
 }
 
 function isSpaceFree(index) { return index === 0 }
