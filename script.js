@@ -29,6 +29,7 @@ const GameBoard = (() => {
     let boardArray = []
     let playerArray = []
     let opponentArray = []
+    let gameIsActive = true
 
     for (let i=0; i<9; i++) {
         boardArray.push(EMPTY_SQUARE)
@@ -39,7 +40,9 @@ const GameBoard = (() => {
             boardArray.splice(index, 1, PLAYER_SQUARE)
             playerArray.push(index)
             fillPlayerSquare(index)
-            displayGameStatus("Player's Turn")
+
+            console.log("player array in object is " + playerArray)
+
         } else {
             console.log("space occupied!")
         }
@@ -50,7 +53,6 @@ const GameBoard = (() => {
             boardArray.splice(index, 1, OPPONENT_SQUARE)
             opponentArray.push(index)
             fillOpponentSquare(index)
-            displayGameStatus("Opponent's Turn")
         } else {
             console.log("space occupied!")
         }
@@ -58,7 +60,7 @@ const GameBoard = (() => {
 
     function isSpaceFree(index) { return index === 0 }
 
-    return {playerMove, opponentMove, boardArray, playerArray,opponentArray}
+    return {playerMove, opponentMove, boardArray, playerArray,opponentArray, gameIsActive}
 })()
 
 const Player = () => {
@@ -71,14 +73,32 @@ const Player = () => {
 
 function eventListeners (button, index) {
     button.addEventListener("click", () => {
-        if (!boardIsFull()) {            
-            if (boardHasOddEmptySpaces()) {
-                GameBoard.playerMove(index)
+        if (GameBoard.gameIsActive) {
+            if (!boardIsFull()) {
+                if (boardHasOddEmptySpaces()) {
+                    GameBoard.playerMove(index)
+                    heading.innerText = "Opponent's Turn"
+                } else {
+                    GameBoard.opponentMove(index)
+                    heading.innerText = "Player's Turn"
+                }
+                if (checkGameWin() !== "Tie") {
+                    //Todo: Winning here after reset w/ out 3 in a row.
+                    console.log(checkGameWin())
+                    updatePlayerRecord()
+                    heading.innerText = checkGameWin()
+                    GameBoard.gameIsActive = false
+                }
             } else {
-                GameBoard.opponentMove(index)
+                console.log("board is full")
             }
-        } else {
-            console.log("board is full")
+    
+            //If last click has filled board.
+            if (boardIsFull()) {
+                heading.innerText = "Tie"
+                GameBoard.gameIsActive = false
+                console.log("full!")
+            }
         }
     })
 }
@@ -102,15 +122,6 @@ function boardHasOddEmptySpaces() {
     if (emptySpaces % 2 !== 0) return true; else return false
 }
 
-function displayGameStatus(whoseTurn) {
-    if (!boardIsFull()) {
-        heading.innerText = whoseTurn
-    } else {
-        heading.innerText = checkGameWin()
-        updatePlayerRecord()
-    }
-}   
-
 function updatePlayerRecord() {
     const player = Player()
     if (checkGameWin() === "Player Win") player.wins++
@@ -122,6 +133,7 @@ function updatePlayerRecord() {
 
 function checkGameWin() {
     let valueToReturn = "Tie"
+    console.log("player array in checkWin is " + GameBoard.playerArray)
 
     const allWinsArray = [ [0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6] ]
 
@@ -141,6 +153,8 @@ function checkGameWin() {
 resetButton.addEventListener("click", () => {
     clearSquaresImages()
     clearBoardArray()
+    clearPlayerAndOpponentArrays()
+    GameBoard.gameIsActive = true
     heading.innerText = "Player's Turn"
 })
 
@@ -148,6 +162,11 @@ function clearBoardArray() {
     for (let i=0; i<GameBoard.boardArray.length; i++) {
         GameBoard.boardArray.splice(i, 1, 0)
     }
+}
+
+function clearPlayerAndOpponentArrays() {
+    GameBoard.playerArray.length = 0
+    GameBoard.opponentArray.length = 0
 }
 
 function boardIsFull() { return !GameBoard.boardArray.includes(0) }
