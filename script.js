@@ -25,7 +25,18 @@ const boardDom = (() => {
     container.appendChild(content)
 })()
 
+const Player = () => {
+    let wins = 0
+    let losses = 0
+    let ties = 0
+
+    return {wins, losses, ties}
+}
+
 const GameBoard = (() => {
+    //Can use this to keep a stable access to Player. We COULD have it as a module like GameBoard, but it's better to keep options open for multiple players.
+    const player = Player()
+
     let boardArray = []
     let playerArray = []
     let opponentArray = []
@@ -40,9 +51,6 @@ const GameBoard = (() => {
             boardArray.splice(index, 1, PLAYER_SQUARE)
             playerArray.push(index)
             fillPlayerSquare(index)
-
-            console.log("player array in object is " + playerArray)
-
         } else {
             console.log("space occupied!")
         }
@@ -60,16 +68,14 @@ const GameBoard = (() => {
 
     function isSpaceFree(index) { return index === 0 }
 
-    return {playerMove, opponentMove, boardArray, playerArray,opponentArray, gameIsActive}
+    const updateWins = (whoWins) => {
+        if (whoWins === "Player") player.wins ++
+        if (whoWins === "Opponent") player.losses ++
+        if (whoWins === "Tie") player.ties ++
+    } 
+
+    return {playerMove, opponentMove, boardArray, playerArray,opponentArray, gameIsActive, updateWins, player}
 })()
-
-const Player = () => {
-    let wins = 0
-    let losses = 0
-    let ties = 0
-
-    return {wins, losses, ties}
-}
 
 function eventListeners (button, index) {
     button.addEventListener("click", () => {
@@ -83,8 +89,6 @@ function eventListeners (button, index) {
                     heading.innerText = "Player's Turn"
                 }
                 if (checkGameWin() !== "Tie") {
-                    //Todo: Winning here after reset w/ out 3 in a row.
-                    console.log(checkGameWin())
                     updatePlayerRecord()
                     heading.innerText = checkGameWin()
                     GameBoard.gameIsActive = false
@@ -97,7 +101,7 @@ function eventListeners (button, index) {
             if (boardIsFull()) {
                 heading.innerText = "Tie"
                 GameBoard.gameIsActive = false
-                console.log("full!")
+                updatePlayerRecord()
             }
         }
     })
@@ -123,17 +127,15 @@ function boardHasOddEmptySpaces() {
 }
 
 function updatePlayerRecord() {
-    const player = Player()
-    if (checkGameWin() === "Player Win") player.wins++
-    if (checkGameWin() === "Opponent Win") player.losses++
-    if (checkGameWin() === "Tie") player.ties++
+    if (checkGameWin() === "Player Win") GameBoard.updateWins("Player")
+    if (checkGameWin() === "Opponent Win") GameBoard.updateWins("Opponent")
+    if (checkGameWin() === "Tie") GameBoard.updateWins("Tie")
 
-    playerStatsText.innerText = player.wins + " - " + player.losses + " - " + player.ties
+    playerStatsText.innerText = GameBoard.player.wins + " - " + GameBoard.player.losses + " - " + GameBoard.player.ties
 }
 
 function checkGameWin() {
     let valueToReturn = "Tie"
-    console.log("player array in checkWin is " + GameBoard.playerArray)
 
     const allWinsArray = [ [0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6] ]
 
