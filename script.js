@@ -7,6 +7,10 @@ const resetButton = document.querySelector("#reset-button")
 heading.innerText = "Player's Turn"
 playerStatsText.innerText = "0 - 0 - 0"
 
+let EMPTY_SQUARE = 0
+let PLAYER_SQUARE = 1
+let OPPONENT_SQUARE = 2
+
 const boardDom = (() => {
     const content = document.createElement("div")
     content.classList.add("squares")
@@ -32,14 +36,12 @@ const Player = () => {
 const GameBoard = (() => {
     const player = Player()
 
-    let EMPTY_SQUARE = 0
-    let PLAYER_SQUARE = 1
-    let OPPONENT_SQUARE = 2
-
     let boardArray = []
     let playerArray = []
     let opponentArray = []
     let emptySquareArray = []
+    let emptySquareScores = []
+
     let gameIsActive = true
 
     for (let i=0; i<9; i++) {
@@ -77,15 +79,13 @@ const GameBoard = (() => {
 
     function updateEmptySquareArray() {
         emptySquareArray = []
-
         for (let i=0; i<boardArray.length; i++) {
             if (boardArray[i] === 0) emptySquareArray.push(i)
         }
-        
         console.log("empty array is " + emptySquareArray)
     }
 
-    return {playerMove, opponentMove, boardArray, playerArray,opponentArray, emptySquareArray, gameIsActive, updateWins, player}
+    return {playerMove, opponentMove, boardArray, playerArray,opponentArray, emptySquareArray, emptySquareScores, gameIsActive, updateWins, player}
 })()
 
 function eventListeners (button, index) {
@@ -136,9 +136,9 @@ function aiMove() {
 
 function endGameIfWon() {
     console.log("checking win")
-    if (checkGameWin() !== "Tie") {
+    if (checkCurrentGameWin() !== "Tie") {
         updatePlayerRecord()
-        heading.innerText = checkGameWin()
+        heading.innerText = checkCurrentGameWin()
         GameBoard.gameIsActive = false
     }
 }
@@ -169,14 +169,14 @@ function boardHasOddEmptySpaces() {
 }
 
 function updatePlayerRecord() {
-    if (checkGameWin() === "Player Win") GameBoard.updateWins("Player")
-    if (checkGameWin() === "Opponent Win") GameBoard.updateWins("Opponent")
-    if (checkGameWin() === "Tie") GameBoard.updateWins("Tie")
+    if (checkCurrentGameWin() === "Player Win") GameBoard.updateWins("Player")
+    if (checkCurrentGameWin() === "Opponent Win") GameBoard.updateWins("Opponent")
+    if (checkCurrentGameWin() === "Tie") GameBoard.updateWins("Tie")
 
     playerStatsText.innerText = GameBoard.player.wins + " - " + GameBoard.player.losses + " - " + GameBoard.player.ties
 }
 
-function checkGameWin() {
+function checkCurrentGameWin() {
     let valueToReturn = "Tie"
 
     const allWinsArray = [ [0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6] ]
@@ -192,6 +192,41 @@ function checkGameWin() {
     }
 
     return valueToReturn
+}
+
+function checkFutureGameWin() {
+    let valueToReturn = "none"
+
+    const allWinsArray = [ [0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6] ]
+
+    if (GameBoard.emptySquareArray.length === 0) valueToReturn = 0
+
+    for (let i=0; i<GameBoard.emptySquareArray; i++) {
+        let playerCheck = GameBoard.playerArray.splice(i, 1, PLAYER_SQUARE)
+        let opponentCheck = GameBoard.opponentArray.splice(i, 1, OPPONENT_SQUARE)
+
+        if (allWinsArray[i].every(array => playerCheck.includes(array))) {
+            valueToReturn = -10
+        }
+
+        if (allWinsArray[i].every(array => opponentCheck.includes(array))) {
+            valueToReturn = +10
+        }
+    }
+
+    return valueToReturn
+}
+
+function minimax() {
+    if (){
+        return {score:-10};
+     }
+       else if (winning(futureBoard, opponent)){
+       return {score:10};
+       }
+     else if (GameBoard.emptySquareArray.length === 0){
+         return {score:0};
+     }
 }
 
 resetButton.addEventListener("click", () => {
