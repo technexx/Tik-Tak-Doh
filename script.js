@@ -56,6 +56,8 @@ const GameBoard = (() => {
             fillPlayerSquare(index)
             updateEmptySquareArray()
             checkFutureGameWin()
+
+            console.log("in object " + emptySquareArray)
         } else {
             console.log("space occupied!")
         }
@@ -79,8 +81,11 @@ const GameBoard = (() => {
         if (whoWins === "Tie") player.ties ++
     }
 
+    //
     function updateEmptySquareArray() {
-        emptySquareArray = []
+        //Can't use array = [], as that will create a new reference different than the one used when accessing this object. Must keep reference and set length to 0.
+        emptySquareArray.length = 0
+
         for (let i=0; i<boardArray.length; i++) {
             if (boardArray[i] === 0) emptySquareArray.push(i)
         }
@@ -202,17 +207,18 @@ function checkFutureGameWin() {
 
     if (GameBoard.emptySquareArray.length === 0) valueToReturn = 0
 
-    for (let i=0; i<GameBoard.emptySquareArray.length; i++) {
-        // let playerCheck = GameBoard.playerArray
-        // let opponentCheck = GameBoard.opponentArray
+    console.log(GameBoard.emptySquareArray)
 
+    //Todo: Array is returning full of 0s
+    for (let i=0; i<GameBoard.emptySquareArray.length; i++) {
         const playerCheck =  JSON.parse(JSON.stringify(GameBoard.playerArray)); 
         const opponentCheck =  JSON.parse(JSON.stringify(GameBoard.opponentArray)); 
+
         playerCheck.push(i)
         opponentCheck.push(i)
 
-        console.log("pcheck is " + playerCheck)
-        console.log("game board access is " + GameBoard.playerArray)
+        // console.log("pcheck is " + playerCheck)
+        // console.log("game board access is " + GameBoard.playerArray)
 
         allWinsArray.forEach(function(value, index) {
             if (allWinsArray[index].every(array => playerCheck.includes(array))) {
@@ -226,7 +232,7 @@ function checkFutureGameWin() {
             }
         })
 
-        console.log(valueToReturn)
+        // console.log("return of " + valueToReturn + " for position " + i)
     }
 
     return valueToReturn
