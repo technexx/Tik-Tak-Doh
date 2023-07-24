@@ -4,10 +4,6 @@ const container = document.querySelector(".container")
 const playerStatsText = document.querySelector("#win-count")
 const resetButton = document.querySelector("#reset-button")
 
-let EMPTY_SQUARE = 0
-let PLAYER_SQUARE = 1
-let OPPONENT_SQUARE = 2
-
 heading.innerText = "Player's Turn"
 playerStatsText.innerText = "0 - 0 - 0"
 
@@ -36,13 +32,19 @@ const Player = () => {
 const GameBoard = (() => {
     const player = Player()
 
+    let EMPTY_SQUARE = 0
+    let PLAYER_SQUARE = 1
+    let OPPONENT_SQUARE = 2
+
     let boardArray = []
     let playerArray = []
     let opponentArray = []
+    let emptySquareArray = []
     let gameIsActive = true
 
     for (let i=0; i<9; i++) {
         boardArray.push(EMPTY_SQUARE)
+        emptySquareArray.push(EMPTY_SQUARE)
     }
         
     const playerMove = (index) => {
@@ -50,6 +52,7 @@ const GameBoard = (() => {
             boardArray.splice(index, 1, PLAYER_SQUARE)
             playerArray.push(index)
             fillPlayerSquare(index)
+            updateEmptySquareArray()
         } else {
             console.log("space occupied!")
         }
@@ -60,6 +63,7 @@ const GameBoard = (() => {
             boardArray.splice(index, 1, OPPONENT_SQUARE)
             opponentArray.push(index)
             fillOpponentSquare(index)
+            updateEmptySquareArray()
         } else {
             console.log("space occupied!")
         }
@@ -69,9 +73,19 @@ const GameBoard = (() => {
         if (whoWins === "Player") player.wins ++
         if (whoWins === "Opponent") player.losses ++
         if (whoWins === "Tie") player.ties ++
-    } 
+    }
 
-    return {playerMove, opponentMove, boardArray, playerArray,opponentArray, gameIsActive, updateWins, player}
+    function updateEmptySquareArray() {
+        emptySquareArray = []
+
+        for (let i=0; i<boardArray.length; i++) {
+            if (boardArray[i] === 0) emptySquareArray.push(i)
+        }
+        
+        console.log("empty array is " + emptySquareArray)
+    }
+
+    return {playerMove, opponentMove, boardArray, playerArray,opponentArray, emptySquareArray, gameIsActive, updateWins, player}
 })()
 
 function eventListeners (button, index) {
