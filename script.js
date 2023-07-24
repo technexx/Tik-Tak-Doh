@@ -55,6 +55,7 @@ const GameBoard = (() => {
             playerArray.push(index)
             fillPlayerSquare(index)
             updateEmptySquareArray()
+            checkFutureGameWin()
         } else {
             console.log("space occupied!")
         }
@@ -66,6 +67,7 @@ const GameBoard = (() => {
             opponentArray.push(index)
             fillOpponentSquare(index)
             updateEmptySquareArray()
+            checkFutureGameWin()
         } else {
             console.log("space occupied!")
         }
@@ -82,7 +84,7 @@ const GameBoard = (() => {
         for (let i=0; i<boardArray.length; i++) {
             if (boardArray[i] === 0) emptySquareArray.push(i)
         }
-        console.log("empty array is " + emptySquareArray)
+        // console.log("empty array is " + emptySquareArray)
     }
 
     return {playerMove, opponentMove, boardArray, playerArray,opponentArray, emptySquareArray, emptySquareScores, gameIsActive, updateWins, player}
@@ -135,7 +137,6 @@ function aiMove() {
 }
 
 function endGameIfWon() {
-    console.log("checking win")
     if (checkCurrentGameWin() !== "Tie") {
         updatePlayerRecord()
         heading.innerText = checkCurrentGameWin()
@@ -201,32 +202,34 @@ function checkFutureGameWin() {
 
     if (GameBoard.emptySquareArray.length === 0) valueToReturn = 0
 
-    for (let i=0; i<GameBoard.emptySquareArray; i++) {
-        let playerCheck = GameBoard.playerArray.splice(i, 1, PLAYER_SQUARE)
-        let opponentCheck = GameBoard.opponentArray.splice(i, 1, OPPONENT_SQUARE)
+    for (let i=0; i<GameBoard.emptySquareArray.length; i++) {
+        // let playerCheck = GameBoard.playerArray
+        // let opponentCheck = GameBoard.opponentArray
 
-        if (allWinsArray[i].every(array => playerCheck.includes(array))) {
-            valueToReturn = -10
-        }
+        const playerCheck =  JSON.parse(JSON.stringify(GameBoard.playerArray)); 
+        const opponentCheck =  JSON.parse(JSON.stringify(GameBoard.opponentArray)); 
+        playerCheck.push(i)
+        opponentCheck.push(i)
 
-        if (allWinsArray[i].every(array => opponentCheck.includes(array))) {
-            valueToReturn = +10
-        }
+        console.log("pcheck is " + playerCheck)
+        console.log("game board access is " + GameBoard.playerArray)
+
+        allWinsArray.forEach(function(value, index) {
+            if (allWinsArray[index].every(array => playerCheck.includes(array))) {
+                valueToReturn = -10
+            }
+        })
+
+        allWinsArray.forEach(function(value, index) {
+            if (allWinsArray[index].every(array => opponentCheck.includes(array))) {
+                valueToReturn = +10
+            }
+        })
+
+        console.log(valueToReturn)
     }
 
     return valueToReturn
-}
-
-function minimax() {
-    if (){
-        return {score:-10};
-     }
-       else if (winning(futureBoard, opponent)){
-       return {score:10};
-       }
-     else if (GameBoard.emptySquareArray.length === 0){
-         return {score:0};
-     }
 }
 
 resetButton.addEventListener("click", () => {
