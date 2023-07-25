@@ -55,9 +55,6 @@ const GameBoard = (() => {
             playerArray.push(index)
             fillPlayerSquare(index)
             updateEmptySquareArray()
-            checkFutureGameWin()
-
-            console.log("in object " + emptySquareArray)
         } else {
             console.log("space occupied!")
         }
@@ -69,7 +66,6 @@ const GameBoard = (() => {
             opponentArray.push(index)
             fillOpponentSquare(index)
             updateEmptySquareArray()
-            checkFutureGameWin()
         } else {
             console.log("space occupied!")
         }
@@ -89,7 +85,6 @@ const GameBoard = (() => {
         for (let i=0; i<boardArray.length; i++) {
             if (boardArray[i] === 0) emptySquareArray.push(i)
         }
-        // console.log("empty array is " + emptySquareArray)
     }
 
     return {playerMove, opponentMove, boardArray, playerArray,opponentArray, emptySquareArray, emptySquareScores, gameIsActive, updateWins, player}
@@ -100,11 +95,11 @@ function eventListeners (button, index) {
         if (GameBoard.gameIsActive) {
             if (!boardIsFull()) {
                 if (boardHasOddEmptySpaces()) {
-                    playerMove(index)
+                    playerActions(index)
                 }
                 endGameIfWon()
                 if (!boardIsFull()) {
-                    aiMove()
+                    aiActions()
                 }
             } else {
                 console.log("board is full")
@@ -120,12 +115,14 @@ function eventListeners (button, index) {
     })
 }
 
-function playerMove(index) {
+function playerActions(index) {
     GameBoard.playerMove(index)
     heading.innerText = "Opponent's Turn"
 }
 
-function aiMove() { 
+function aiActions() { 
+    checkFutureGameWin()
+
     let randomInt = getRandomInt(9)
 
     while (!isSpaceFree(GameBoard.boardArray[randomInt])) {
@@ -207,18 +204,17 @@ function checkFutureGameWin() {
 
     if (GameBoard.emptySquareArray.length === 0) valueToReturn = 0
 
-    console.log(GameBoard.emptySquareArray)
+    // console.log("enpty array is " + GameBoard.emptySquareArray)
 
-    //Todo: Array is returning full of 0s
     for (let i=0; i<GameBoard.emptySquareArray.length; i++) {
         const playerCheck =  JSON.parse(JSON.stringify(GameBoard.playerArray)); 
         const opponentCheck =  JSON.parse(JSON.stringify(GameBoard.opponentArray)); 
 
-        playerCheck.push(i)
-        opponentCheck.push(i)
+        playerCheck.push(GameBoard.emptySquareArray[i])
+        opponentCheck.push(GameBoard.emptySquareArray[i])
 
-        // console.log("pcheck is " + playerCheck)
-        // console.log("game board access is " + GameBoard.playerArray)
+        console.log("playerCheck is " + playerCheck)
+        console.log("opponentCheck is " + opponentCheck)
 
         allWinsArray.forEach(function(value, index) {
             if (allWinsArray[index].every(array => playerCheck.includes(array))) {
@@ -232,7 +228,7 @@ function checkFutureGameWin() {
             }
         })
 
-        // console.log("return of " + valueToReturn + " for position " + i)
+        console.log("return of " + valueToReturn + " for position " + GameBoard.emptySquareArray[i])
     }
 
     return valueToReturn
