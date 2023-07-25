@@ -234,10 +234,11 @@ function checkFutureGameWin() {
     }
 }
 
-//Todo: Player can click on occupied square and game continues.
+//Todo: Multiple fast clicks for playerTurn b0rk game.
 function getBestAIMovePosition() {
     let score = 0
     let position = 0
+    let nonNeutralMove = true
     let neutralMoveArray = []
     
     for (let i=0; i<GameBoard.emptySquareArray.length; i++) {
@@ -246,6 +247,7 @@ function getBestAIMovePosition() {
         if (GameBoard.emptySquareScores[GameBoard.emptySquareArray[i]] > score) {
             score = GameBoard.emptySquareScores[GameBoard.emptySquareArray[i]]
             position = GameBoard.emptySquareArray[i]
+            nonNeutralMove = false
 
             console.log("score is " + score)
             console.log("scored position is " + position)
@@ -253,9 +255,15 @@ function getBestAIMovePosition() {
             neutralMoveArray.push(GameBoard.emptySquareArray[i])
         }
 
-        if (!GameBoard.emptySquareArray.includes(position)) {
-            position = GameBoard.emptySquareArray[0]
-        }
+        // if (!GameBoard.emptySquareArray.includes(position)) {
+        //     position = GameBoard.emptySquareArray[0]
+        // }
+    }
+
+    if (nonNeutralMove) {
+        const random = Math.floor(Math.random() * neutralMoveArray.length)
+        position = neutralMoveArray[random]
+        console.log("random neutral position is " + position)
     }
 
     console.log("final position is " + position)
