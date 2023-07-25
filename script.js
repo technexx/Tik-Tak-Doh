@@ -217,7 +217,7 @@ function checkFutureGameWin() {
 
         allWinsArray.forEach(function(value, index) {
             if (allWinsArray[index].every(array => playerCheck.includes(array))) {
-                moveValue = 20
+                moveValue = 10
                 GameBoard.emptySquareScores.splice(GameBoard.emptySquareArray[i], 1, moveValue)
                 console.log("square scores are " + GameBoard.emptySquareScores)
 
@@ -226,7 +226,7 @@ function checkFutureGameWin() {
 
         allWinsArray.forEach(function(value, index) {
             if (allWinsArray[index].every(array => opponentCheck.includes(array))) {
-                moveValue = 10
+                moveValue = 20
                 GameBoard.emptySquareScores.splice(GameBoard.emptySquareArray[i], 1, moveValue)
                 console.log("square scores are " + GameBoard.emptySquareScores)
             }
