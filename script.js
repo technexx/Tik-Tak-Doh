@@ -207,8 +207,10 @@ function checkFutureGameWin() {
 
     console.log("enpty array is " + GameBoard.emptySquareArray)
 
+    //Todo: Third move doesn't include previous "-10" win in scores array. Or rather, it lists the array twice but overwrites the first instance.
+    resetEmptySquareScoresArray()
+
     for (let i=0; i<GameBoard.emptySquareArray.length; i++) {
-        resetEmptySquareScoresArray()
         valueToReturn = 0
 
         const playerCheck =  JSON.parse(JSON.stringify(GameBoard.playerArray)); 
@@ -216,9 +218,6 @@ function checkFutureGameWin() {
 
         playerCheck.push(GameBoard.emptySquareArray[i])
         opponentCheck.push(GameBoard.emptySquareArray[i])
-
-        // console.log("playerCheck is " + playerCheck)
-        // console.log("opponentCheck is " + opponentCheck)
 
         allWinsArray.forEach(function(value, index) {
             if (allWinsArray[index].every(array => playerCheck.includes(array))) {
@@ -232,7 +231,8 @@ function checkFutureGameWin() {
         allWinsArray.forEach(function(value, index) {
             if (allWinsArray[index].every(array => opponentCheck.includes(array))) {
                 valueToReturn = +10
-                GameBoard.emptySquareScores.splice(i, 1, valueToReturn)
+                GameBoard.emptySquareScores.splice(GameBoard.emptySquareArray[i], 1, valueToReturn)
+                console.log("square scores are " + GameBoard.emptySquareScores)
             }
         })    
     }
