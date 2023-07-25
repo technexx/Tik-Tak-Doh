@@ -42,6 +42,7 @@ const GameBoard = (() => {
     let emptySquareArray = []
     let emptySquareScores = []
 
+    let playerCanClick = true
     let gameIsActive = true
 
     for (let i=0; i<9; i++) {
@@ -80,31 +81,34 @@ const GameBoard = (() => {
         }
     }
 
-    return {playerMove, opponentMove, boardArray, playerArray,opponentArray, emptySquareArray, emptySquareScores, gameIsActive, updateWins, player}
+    return {playerCanClick, playerMove, opponentMove, boardArray, playerArray,opponentArray, emptySquareArray, emptySquareScores, gameIsActive, updateWins, player}
 })()
 
 function eventListeners (button, index) {
     button.addEventListener("click", () => {
-        if (GameBoard.gameIsActive) {
-            if (!boardIsFull()) {
-                if (isSpaceFree(GameBoard.boardArray[index])) {
-                              if (boardHasOddEmptySpaces()) {
-                    playerActions(index)
-                }
-                endGameIfWon()
+        if (GameBoard.playerCanClick) {
+            if (GameBoard.gameIsActive) {
                 if (!boardIsFull()) {
-                    aiActions()
+                    if (isSpaceFree(GameBoard.boardArray[index])) {
+                        if (boardHasOddEmptySpaces()) {
+                          playerActions(index)
+                          GameBoard.playerCanClick = false
+                    }
+                    endGameIfWon()
+                    if (!boardIsFull()) {
+                        aiActions()
+                    }
+                    }
+                } else {
+                    console.log("board is full")
                 }
+        
+                //If last click has filled board.
+                if (boardIsFull()) {
+                    heading.innerText = "Tie"
+                    GameBoard.gameIsActive = false
+                    updatePlayerRecord()
                 }
-            } else {
-                console.log("board is full")
-            }
-    
-            //If last click has filled board.
-            if (boardIsFull()) {
-                heading.innerText = "Tie"
-                GameBoard.gameIsActive = false
-                updatePlayerRecord()
             }
         }
     })
@@ -129,6 +133,7 @@ function aiActions() {
         if (GameBoard.gameIsActive) {
             heading.innerText = "Player's Turn"
         }
+        GameBoard.playerCanClick = true
     }, 1000) 
 }
 
@@ -242,7 +247,7 @@ function getBestAIMovePosition() {
     let neutralMoveArray = []
     
     for (let i=0; i<GameBoard.emptySquareArray.length; i++) {
-        //Todo: This position set overwrites subsequent loop because it ALWAYS runs while subsequent does not.
+        //Todo: position set here overwrites subsequent loop because it ALWAYS runs while subsequent does not.
 
         if (GameBoard.emptySquareScores[GameBoard.emptySquareArray[i]] > score) {
             score = GameBoard.emptySquareScores[GameBoard.emptySquareArray[i]]
@@ -254,10 +259,6 @@ function getBestAIMovePosition() {
         } else {
             neutralMoveArray.push(GameBoard.emptySquareArray[i])
         }
-
-        // if (!GameBoard.emptySquareArray.includes(position)) {
-        //     position = GameBoard.emptySquareArray[0]
-        // }
     }
 
     if (nonNeutralMove) {
@@ -277,6 +278,7 @@ resetButton.addEventListener("click", () => {
     clearPlayerAndOpponentArrays()
     clearEmptyAndScoreSquareArrays()
     GameBoard.gameIsActive = true
+    GameBoard.playerCanClick = true
     heading.innerText = "Player's Turn"
 })
 
