@@ -62,13 +62,11 @@ const GameBoard = (() => {
     }
 
     const opponentMove = (index) => {
-
-        boardArray.splice(index, 1, OPPONENT_SQUARE)
-        opponentArray.push(index)
-        fillOpponentSquare(index)
-        updateEmptySquareArray()
         if (isSpaceFree(boardArray[index])) {
-
+            boardArray.splice(index, 1, OPPONENT_SQUARE)
+            opponentArray.push(index)
+            fillOpponentSquare(index)
+            updateEmptySquareArray()
         } else {
             console.log("space occupied!")
         }
@@ -206,7 +204,7 @@ function checkFutureGameWin() {
 
     resetEmptySquareScoresArray()
 
-    console.log(GameBoard.emptySquareArray)
+    console.log("empty board array is " + GameBoard.emptySquareArray)
 
     for (let i=0; i<GameBoard.emptySquareArray.length; i++) {
         valueToReturn = 0
@@ -236,8 +234,6 @@ function checkFutureGameWin() {
     }
     console.log("square scores are " + GameBoard.emptySquareScores)
 
-    getBestAIMovePosition()
-
     function resetEmptySquareScoresArray() {
         GameBoard.emptySquareScores.length = 0
         for (let i=0; i<9; i++) { GameBoard.emptySquareScores.push(0) }
@@ -249,14 +245,23 @@ function getBestAIMovePosition() {
     let position = 0
     
     for (let i=0; i<GameBoard.emptySquareArray.length; i++) {
+        //Todo: This position set overwrites subsequent loop because it ALWAYS runs while subsequent does not.
+
         if (GameBoard.emptySquareScores[GameBoard.emptySquareArray[i]] > score) {
             score = GameBoard.emptySquareScores[GameBoard.emptySquareArray[i]]
             position = GameBoard.emptySquareArray[i]
 
             console.log("score is " + score)
-            console.log("position is " + position)
+            console.log("scored position is " + position)
+        }
+
+        if (!GameBoard.emptySquareArray.includes(position)) {
+            position = GameBoard.emptySquareArray[0]
         }
     }
+
+    console.log("final position is " + position)
+
     return position
 }
 
