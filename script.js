@@ -62,11 +62,13 @@ const GameBoard = (() => {
     }
 
     const opponentMove = (index) => {
+
+        boardArray.splice(index, 1, OPPONENT_SQUARE)
+        opponentArray.push(index)
+        fillOpponentSquare(index)
+        updateEmptySquareArray()
         if (isSpaceFree(boardArray[index])) {
-            boardArray.splice(index, 1, OPPONENT_SQUARE)
-            opponentArray.push(index)
-            fillOpponentSquare(index)
-            updateEmptySquareArray()
+
         } else {
             console.log("space occupied!")
         }
@@ -124,14 +126,13 @@ function playerActions(index) {
 function aiActions() { 
     checkFutureGameWin()
 
-    let randomInt = getRandomInt(9)
-
-    while (!isSpaceFree(GameBoard.boardArray[randomInt])) {
-        randomInt = getRandomInt(9)
-    }
+    // let randomInt = getRandomInt(9)
+    // while (!isSpaceFree(GameBoard.boardArray[randomInt])) {
+    //     randomInt = getRandomInt(9)
+    // }
 
     setTimeout(function() {
-        GameBoard.opponentMove(randomInt)
+        GameBoard.opponentMove(getBestAIMovePosition())
         endGameIfWon()
         if (GameBoard.gameIsActive) {
             heading.innerText = "Player's Turn"
@@ -199,16 +200,13 @@ function checkCurrentGameWin() {
 }
 
 function checkFutureGameWin() {
-    let valueToReturn = 0
+    let moveValue = 0
 
     const allWinsArray = [ [0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6] ]
 
-    if (GameBoard.emptySquareArray.length === 0) valueToReturn = 0
-
-    console.log("enpty array is " + GameBoard.emptySquareArray)
-
-    //Todo: Third move doesn't include previous "-10" win in scores array. Or rather, it lists the array twice but overwrites the first instance.
     resetEmptySquareScoresArray()
+
+    console.log(GameBoard.emptySquareArray)
 
     for (let i=0; i<GameBoard.emptySquareArray.length; i++) {
         valueToReturn = 0
@@ -221,8 +219,8 @@ function checkFutureGameWin() {
 
         allWinsArray.forEach(function(value, index) {
             if (allWinsArray[index].every(array => playerCheck.includes(array))) {
-                valueToReturn = -10
-                GameBoard.emptySquareScores.splice(GameBoard.emptySquareArray[i], 1, valueToReturn)
+                moveValue = 20
+                GameBoard.emptySquareScores.splice(GameBoard.emptySquareArray[i], 1, moveValue)
                 console.log("square scores are " + GameBoard.emptySquareScores)
 
             }
@@ -230,19 +228,36 @@ function checkFutureGameWin() {
 
         allWinsArray.forEach(function(value, index) {
             if (allWinsArray[index].every(array => opponentCheck.includes(array))) {
-                valueToReturn = +10
-                GameBoard.emptySquareScores.splice(GameBoard.emptySquareArray[i], 1, valueToReturn)
+                moveValue = 10
+                GameBoard.emptySquareScores.splice(GameBoard.emptySquareArray[i], 1, moveValue)
                 console.log("square scores are " + GameBoard.emptySquareScores)
             }
-        })    
+        })
     }
+    console.log("square scores are " + GameBoard.emptySquareScores)
+
+    getBestAIMovePosition()
 
     function resetEmptySquareScoresArray() {
         GameBoard.emptySquareScores.length = 0
         for (let i=0; i<9; i++) { GameBoard.emptySquareScores.push(0) }
     }
+}
 
-    return valueToReturn
+function getBestAIMovePosition() {
+    let score = 0
+    let position = 0
+    
+    for (let i=0; i<GameBoard.emptySquareArray.length; i++) {
+        if (GameBoard.emptySquareScores[GameBoard.emptySquareArray[i]] > score) {
+            score = GameBoard.emptySquareScores[GameBoard.emptySquareArray[i]]
+            position = GameBoard.emptySquareArray[i]
+
+            console.log("score is " + score)
+            console.log("position is " + position)
+        }
+    }
+    return position
 }
 
 resetButton.addEventListener("click", () => {
