@@ -47,6 +47,7 @@ const GameBoard = (() => {
     for (let i=0; i<9; i++) {
         boardArray.push(EMPTY_SQUARE)
         emptySquareArray.push(EMPTY_SQUARE)
+        emptySquareScores.push(0)
     }
         
     const playerMove = (index) => {
@@ -198,37 +199,47 @@ function checkCurrentGameWin() {
 }
 
 function checkFutureGameWin() {
-    let valueToReturn = "none"
+    let valueToReturn = 0
 
     const allWinsArray = [ [0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6] ]
 
     if (GameBoard.emptySquareArray.length === 0) valueToReturn = 0
 
-    // console.log("enpty array is " + GameBoard.emptySquareArray)
+    console.log("enpty array is " + GameBoard.emptySquareArray)
 
     for (let i=0; i<GameBoard.emptySquareArray.length; i++) {
+        resetEmptySquareScoresArray()
+        valueToReturn = 0
+
         const playerCheck =  JSON.parse(JSON.stringify(GameBoard.playerArray)); 
         const opponentCheck =  JSON.parse(JSON.stringify(GameBoard.opponentArray)); 
 
         playerCheck.push(GameBoard.emptySquareArray[i])
         opponentCheck.push(GameBoard.emptySquareArray[i])
 
-        console.log("playerCheck is " + playerCheck)
-        console.log("opponentCheck is " + opponentCheck)
+        // console.log("playerCheck is " + playerCheck)
+        // console.log("opponentCheck is " + opponentCheck)
 
         allWinsArray.forEach(function(value, index) {
             if (allWinsArray[index].every(array => playerCheck.includes(array))) {
                 valueToReturn = -10
+                GameBoard.emptySquareScores.splice(GameBoard.emptySquareArray[i], 1, valueToReturn)
+                console.log("square scores are " + GameBoard.emptySquareScores)
+
             }
         })
 
         allWinsArray.forEach(function(value, index) {
             if (allWinsArray[index].every(array => opponentCheck.includes(array))) {
                 valueToReturn = +10
+                GameBoard.emptySquareScores.splice(i, 1, valueToReturn)
             }
-        })
+        })    
+    }
 
-        console.log("return of " + valueToReturn + " for position " + GameBoard.emptySquareArray[i])
+    function resetEmptySquareScoresArray() {
+        GameBoard.emptySquareScores.length = 0
+        for (let i=0; i<9; i++) { GameBoard.emptySquareScores.push(0) }
     }
 
     return valueToReturn
