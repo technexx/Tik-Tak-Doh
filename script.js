@@ -51,25 +51,17 @@ const GameBoard = (() => {
     }
         
     const playerMove = (index) => {
-        if (isSpaceFree(boardArray[index])) {
-            boardArray.splice(index, 1, PLAYER_SQUARE)
-            playerArray.push(index)
-            fillPlayerSquare(index)
-            updateEmptySquareArray()
-        } else {
-            console.log("space occupied!")
-        }
+        boardArray.splice(index, 1, PLAYER_SQUARE)
+        playerArray.push(index)
+        fillPlayerSquare(index)
+        updateEmptySquareArray()
     }
 
     const opponentMove = (index) => {
-        if (isSpaceFree(boardArray[index])) {
-            boardArray.splice(index, 1, OPPONENT_SQUARE)
-            opponentArray.push(index)
-            fillOpponentSquare(index)
-            updateEmptySquareArray()
-        } else {
-            console.log("space occupied!")
-        }
+        boardArray.splice(index, 1, OPPONENT_SQUARE)
+        opponentArray.push(index)
+        fillOpponentSquare(index)
+        updateEmptySquareArray()
     }
 
     const updateWins = (whoWins) => {
@@ -95,12 +87,14 @@ function eventListeners (button, index) {
     button.addEventListener("click", () => {
         if (GameBoard.gameIsActive) {
             if (!boardIsFull()) {
-                if (boardHasOddEmptySpaces()) {
+                if (isSpaceFree(GameBoard.boardArray[index])) {
+                              if (boardHasOddEmptySpaces()) {
                     playerActions(index)
                 }
                 endGameIfWon()
                 if (!boardIsFull()) {
                     aiActions()
+                }
                 }
             } else {
                 console.log("board is full")
@@ -240,10 +234,11 @@ function checkFutureGameWin() {
     }
 }
 
-//Todo: Does not choose winning move
+//Todo: Player can click on occupied square and game continues.
 function getBestAIMovePosition() {
     let score = 0
     let position = 0
+    let neutralMoveArray = []
     
     for (let i=0; i<GameBoard.emptySquareArray.length; i++) {
         //Todo: This position set overwrites subsequent loop because it ALWAYS runs while subsequent does not.
@@ -254,6 +249,8 @@ function getBestAIMovePosition() {
 
             console.log("score is " + score)
             console.log("scored position is " + position)
+        } else {
+            neutralMoveArray.push(GameBoard.emptySquareArray[i])
         }
 
         if (!GameBoard.emptySquareArray.includes(position)) {
