@@ -240,6 +240,7 @@ function checkFutureGameWin() {
     }
 }
 
+//Todo: Does not choose winning move
 function getBestAIMovePosition() {
     let score = 0
     let position = 0
@@ -269,6 +270,7 @@ resetButton.addEventListener("click", () => {
     clearSquaresImages()
     clearBoardArray()
     clearPlayerAndOpponentArrays()
+    clearEmptyAndScoreSquareArrays()
     GameBoard.gameIsActive = true
     heading.innerText = "Player's Turn"
 })
@@ -282,6 +284,11 @@ function clearBoardArray() {
 function clearPlayerAndOpponentArrays() {
     GameBoard.playerArray.length = 0
     GameBoard.opponentArray.length = 0
+}
+
+function clearEmptyAndScoreSquareArrays() {
+    GameBoard.emptySquareArray.length = 0
+    GameBoard.emptySquareScores.length = 0
 }
 
 function boardIsFull() { return !GameBoard.boardArray.includes(0) }
