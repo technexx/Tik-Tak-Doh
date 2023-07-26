@@ -31,7 +31,6 @@ const BoardDom = (() => {
 
     function eventListeners (button, index) {
         button.addEventListener("click", () => {
-            console.log("onClick boolean is " + playerCanClick)
             if (playerCanClick) {
                 if (GameBoard.gameIsActive) {
                     if (!GameBoard.boardIsFull()) {
@@ -53,7 +52,7 @@ const BoardDom = (() => {
                     if (GameBoard.boardIsFull()) {
                         heading.innerText = "Tie"
                         GameBoard.gameIsActive = false
-                        updatePlayerRecord()
+                        GameController.updatePlayerRecord()
                     }
                 }
             }
@@ -195,91 +194,76 @@ const GameController = (() => {
         }
     }
 
-    return {playerActions, aiActions, playerTurn, endGameIfWon}
-})()
-
-resetButton.addEventListener("click", () => {
-    DisplayController.clearSquaresImages()
-    DisplayController.clearBoardArray()
-    DisplayController.clearPlayerAndOpponentArrays()
-    DisplayController.clearEmptyAndScoreSquareArrays()
-    GameBoard.gameIsActive = true
-    BoardDom.playerCanClick = true
-    heading.innerText = "Player's Turn"
-})
-
-// function getRandomInt(max) {
-//     return Math.floor(Math.random() * max);
-//   }
-
-function updatePlayerRecord() {
-    if (checkCurrentGameWin() === "Player Win") GameBoard.updateWins("Player")
-    if (checkCurrentGameWin() === "Opponent Win") GameBoard.updateWins("Opponent")
-    if (checkCurrentGameWin() === "Tie") GameBoard.updateWins("Tie")
-
-    playerStatsText.innerText = GameBoard.player.wins + " - " + GameBoard.player.losses + " - " + GameBoard.player.ties
-}
-
-function checkCurrentGameWin() {
-    let valueToReturn = "Tie"
-
-    const allWinsArray = [ [0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6] ]
-
-    for (let i=0; i<allWinsArray.length; i++) {
-        if (allWinsArray[i].every(array => GameBoard.playerArray.includes(array))) {
-            valueToReturn = "Player Win"
+    const updatePlayerRecord = () => {
+        if (checkCurrentGameWin() === "Player Win") GameBoard.updateWins("Player")
+        if (checkCurrentGameWin() === "Opponent Win") GameBoard.updateWins("Opponent")
+        if (checkCurrentGameWin() === "Tie") GameBoard.updateWins("Tie")
+    
+        playerStatsText.innerText = GameBoard.player.wins + " - " + GameBoard.player.losses + " - " + GameBoard.player.ties
+    }
+    
+    const checkCurrentGameWin = () => {
+        let valueToReturn = "Tie"
+    
+        const allWinsArray = [ [0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6] ]
+    
+        for (let i=0; i<allWinsArray.length; i++) {
+            if (allWinsArray[i].every(array => GameBoard.playerArray.includes(array))) {
+                valueToReturn = "Player Win"
+            }
+    
+            if (allWinsArray[i].every(array => GameBoard.opponentArray.includes(array))) {
+                valueToReturn = "Opponent Win"
+            }
         }
-
-        if (allWinsArray[i].every(array => GameBoard.opponentArray.includes(array))) {
-            valueToReturn = "Opponent Win"
-        }
+        return valueToReturn
     }
 
-    return valueToReturn
-}
-
-function checkFutureGameWin() {
-    let moveValue = 0
-
-    const allWinsArray = [ [0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6] ]
-
-    resetEmptySquareScoresArray()
-
-    console.log("empty board array is " + GameBoard.emptySquareArray)
-
-    for (let i=0; i<GameBoard.emptySquareArray.length; i++) {
-        valueToReturn = 0
-
-        const playerCheck =  JSON.parse(JSON.stringify(GameBoard.playerArray)); 
-        const opponentCheck =  JSON.parse(JSON.stringify(GameBoard.opponentArray)); 
-
-        playerCheck.push(GameBoard.emptySquareArray[i])
-        opponentCheck.push(GameBoard.emptySquareArray[i])
-
-        allWinsArray.forEach(function(value, index) {
-            if (allWinsArray[index].every(array => playerCheck.includes(array))) {
-                moveValue = 10
-                GameBoard.emptySquareScores.splice(GameBoard.emptySquareArray[i], 1, moveValue)
-                console.log("square scores are " + GameBoard.emptySquareScores)
-
-            }
-        })
-
-        allWinsArray.forEach(function(value, index) {
-            if (allWinsArray[index].every(array => opponentCheck.includes(array))) {
-                moveValue = 20
-                GameBoard.emptySquareScores.splice(GameBoard.emptySquareArray[i], 1, moveValue)
-                console.log("square scores are " + GameBoard.emptySquareScores)
-            }
-        })
+    const checkFutureGameWin = () => {
+        let moveValue = 0
+    
+        const allWinsArray = [ [0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6] ]
+    
+        resetEmptySquareScoresArray()
+    
+        console.log("empty board array is " + GameBoard.emptySquareArray)
+    
+        for (let i=0; i<GameBoard.emptySquareArray.length; i++) {
+            valueToReturn = 0
+    
+            const playerCheck =  JSON.parse(JSON.stringify(GameBoard.playerArray)); 
+            const opponentCheck =  JSON.parse(JSON.stringify(GameBoard.opponentArray)); 
+    
+            playerCheck.push(GameBoard.emptySquareArray[i])
+            opponentCheck.push(GameBoard.emptySquareArray[i])
+    
+            allWinsArray.forEach(function(value, index) {
+                if (allWinsArray[index].every(array => playerCheck.includes(array))) {
+                    moveValue = 10
+                    GameBoard.emptySquareScores.splice(GameBoard.emptySquareArray[i], 1, moveValue)
+                    console.log("square scores are " + GameBoard.emptySquareScores)
+    
+                }
+            })
+    
+            allWinsArray.forEach(function(value, index) {
+                if (allWinsArray[index].every(array => opponentCheck.includes(array))) {
+                    moveValue = 20
+                    GameBoard.emptySquareScores.splice(GameBoard.emptySquareArray[i], 1, moveValue)
+                    console.log("square scores are " + GameBoard.emptySquareScores)
+                }
+            })
+        }
+        console.log("square scores are " + GameBoard.emptySquareScores)
     }
-    console.log("square scores are " + GameBoard.emptySquareScores)
 
-    function resetEmptySquareScoresArray() {
+    const resetEmptySquareScoresArray = () => {
         GameBoard.emptySquareScores.length = 0
         for (let i=0; i<9; i++) { GameBoard.emptySquareScores.push(0) }
     }
-}
+
+    return {playerActions, aiActions, playerTurn, endGameIfWon, updatePlayerRecord}
+})()
 
 function getBestAIMovePosition() {
     let score = 0
@@ -310,3 +294,17 @@ function getBestAIMovePosition() {
 
     return position
 }
+
+resetButton.addEventListener("click", () => {
+    DisplayController.clearSquaresImages()
+    DisplayController.clearBoardArray()
+    DisplayController.clearPlayerAndOpponentArrays()
+    DisplayController.clearEmptyAndScoreSquareArrays()
+    GameBoard.gameIsActive = true
+    BoardDom.playerCanClick = true
+    heading.innerText = "Player's Turn"
+})
+
+// function getRandomInt(max) {
+//     return Math.floor(Math.random() * max);
+//   }
