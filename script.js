@@ -33,6 +33,7 @@ const BoardDom = (() => {
 
     function eventListeners (button, index) {
         button.addEventListener("click", () => {
+            console.log("can click " + playerCanClick)
             if (playerCanClick) {
                 if (GameBoard.gameIsActive) {
                     if (!GameBoard.boardIsFull()) {
@@ -179,7 +180,7 @@ const GameController = (() => {
         for (let i=0; i<GameBoard.boardArray.length; i++) {
             if (GameBoard.boardArray[i] === 0) emptySpaces++
         }
-        if (emptySpaces % 2 !== 0) return true; else return false
+        return (emptySpaces % 2 !== 0)
     }
 
     const endGameIfWon = () => {
@@ -200,9 +201,9 @@ const GameController = (() => {
 
     
     const updateWins = (whoWins) => {
-        if (whoWins === "Player") player.wins ++
-        if (whoWins === "Opponent") player.losses ++
-        if (whoWins === "Tie") player.ties ++
+        if (whoWins === "Player") GameBoard.player.wins ++
+        if (whoWins === "Opponent") GameBoard.player.losses ++
+        if (whoWins === "Tie") GameBoard.player.ties ++
     }
     
     const checkCurrentGameWin = () => {
