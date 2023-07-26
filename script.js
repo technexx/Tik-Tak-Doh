@@ -7,24 +7,6 @@ const resetButton = document.querySelector("#reset-button")
 heading.innerText = "Player's Turn"
 playerStatsText.innerText = "0 - 0 - 0"
 
-let EMPTY_SQUARE = 0
-let PLAYER_SQUARE = 1
-let OPPONENT_SQUARE = 2
-
-const boardDom = (() => {
-    const content = document.createElement("div")
-    content.classList.add("squares")
-
-    for (let i=0; i<9; i++) {
-        const button = document.createElement("button")
-        button.setAttribute("id", "square-button " + (i+1))        
-        content.appendChild(button)
-        eventListeners(button, (i))
-    }
-
-    container.appendChild(content)
-})()
-
 const Player = () => {
     let wins = 0
     let losses = 0
@@ -33,8 +15,65 @@ const Player = () => {
     return {wins, losses, ties}
 }
 
+const BoardDom = (() => {
+    const content = document.createElement("div")
+    content.classList.add("squares")
+
+    let playerCanClick = true
+
+    for (let i=0; i<9; i++) {
+        const button = document.createElement("button")
+        button.setAttribute("id", "square-button " + (i+1))        
+        content.appendChild(button)
+        eventListeners(button, (i))
+    }
+    container.appendChild(content)
+
+    function eventListeners (button, index) {
+        button.addEventListener("click", () => {
+            console.log("onClick boolean is " + playerCanClick)
+            if (playerCanClick) {
+                if (GameBoard.gameIsActive) {
+                    if (!GameBoard.boardIsFull()) {
+                        if (isSpaceFree(GameBoard.boardArray[index])) {
+                            if (GameController.playerTurn()) {
+                              GameController.playerActions(index)
+                              togglePlayerClick()
+                        }
+                        GameController.endGameIfWon()
+                        if (!GameBoard.boardIsFull()) {
+                            GameController.aiActions()
+                        }
+                        }
+                    } else {
+                        console.log("board is full")
+                    }
+            
+                    //If last click has filled board.
+                    if (GameBoard.boardIsFull()) {
+                        heading.innerText = "Tie"
+                        GameBoard.gameIsActive = false
+                        updatePlayerRecord()
+                    }
+                }
+            }
+        })
+    }
+
+    const togglePlayerClick = () => { playerCanClick = !playerCanClick }
+
+    const isSpaceFree = (index) => { return index === 0 }
+
+    return {togglePlayerClick}
+})()
+
+
 const GameBoard = (() => {
     const player = Player()
+
+    let EMPTY_SQUARE = 0
+    let PLAYER_SQUARE = 1
+    let OPPONENT_SQUARE = 2
 
     let boardArray = []
     let playerArray = []
@@ -42,7 +81,6 @@ const GameBoard = (() => {
     let emptySquareArray = []
     let emptySquareScores = []
 
-    let playerCanClick = true
     let gameIsActive = true
 
     for (let i=0; i<9; i++) {
@@ -65,6 +103,16 @@ const GameBoard = (() => {
         updateEmptySquareArray()
     }
 
+    const fillPlayerSquare = (index) => {
+        const buttons = document.querySelectorAll("[id^='square-button']")
+        buttons[index].style.backgroundImage="url(./images/o-icon.svg)"
+    }
+    
+    const fillOpponentSquare = (index) => {
+        const buttons = document.querySelectorAll("[id^='square-button']")
+        buttons[index].style.backgroundImage="url(./images/x-icon.svg)"
+    }
+
     const updateWins = (whoWins) => {
         if (whoWins === "Player") player.wins ++
         if (whoWins === "Opponent") player.losses ++
@@ -73,7 +121,7 @@ const GameBoard = (() => {
 
     const boardIsFull = () => { return !GameBoard.boardArray.includes(0) }
 
-    function updateEmptySquareArray() {
+    const updateEmptySquareArray = () => {
         emptySquareArray.length = 0
 
         for (let i=0; i<boardArray.length; i++) {
@@ -81,7 +129,7 @@ const GameBoard = (() => {
         }
     }
 
-    return {boardIsFull, playerCanClick, playerMove, opponentMove, boardArray, playerArray,opponentArray, emptySquareArray, emptySquareScores, gameIsActive, updateWins, player}
+    return {boardIsFull, playerMove, opponentMove, boardArray, playerArray,opponentArray, emptySquareArray, emptySquareScores, gameIsActive, updateWins, player}
 })()
 
 const DisplayController = (() => {
@@ -111,101 +159,58 @@ const DisplayController = (() => {
     return {clearBoardArray, clearPlayerAndOpponentArrays, clearEmptyAndScoreSquareArrays, clearSquaresImages}
 })()
 
+const GameController = (() => {
+    const playerActions = (index) => {
+        GameBoard.playerMove(index)
+        heading.innerText = "Opponent's Turn"
+    }
+    
+    const aiActions = () => { 
+        checkFutureGameWin()
+    
+        setTimeout(function() {
+            GameBoard.opponentMove(getBestAIMovePosition())
+            endGameIfWon()
+            if (GameBoard.gameIsActive) {
+                heading.innerText = "Player's Turn"
+            }
+            BoardDom.togglePlayerClick()
+        }, 1000) 
+    }
+
+    const playerTurn = () => {
+        let emptySpaces = 0
+    
+        for (let i=0; i<GameBoard.boardArray.length; i++) {
+            if (GameBoard.boardArray[i] === 0) emptySpaces++
+        }
+        if (emptySpaces % 2 !== 0) return true; else return false
+    }
+
+    const endGameIfWon = () => {
+        if (checkCurrentGameWin() !== "Tie") {
+            updatePlayerRecord()
+            heading.innerText = checkCurrentGameWin()
+            GameBoard.gameIsActive = false
+        }
+    }
+
+    return {playerActions, aiActions, playerTurn, endGameIfWon}
+})()
+
 resetButton.addEventListener("click", () => {
     DisplayController.clearSquaresImages()
     DisplayController.clearBoardArray()
     DisplayController.clearPlayerAndOpponentArrays()
     DisplayController.clearEmptyAndScoreSquareArrays()
     GameBoard.gameIsActive = true
-    GameBoard.playerCanClick = true
+    BoardDom.playerCanClick = true
     heading.innerText = "Player's Turn"
 })
 
-function eventListeners (button, index) {
-    button.addEventListener("click", () => {
-        if (GameBoard.playerCanClick) {
-            if (GameBoard.gameIsActive) {
-                if (!GameBoard.boardIsFull()) {
-                    if (isSpaceFree(GameBoard.boardArray[index])) {
-                        if (boardHasOddEmptySpaces()) {
-                          playerActions(index)
-                          GameBoard.playerCanClick = false
-                    }
-                    endGameIfWon()
-                    if (!GameBoard.boardIsFull()) {
-                        aiActions()
-                    }
-                    }
-                } else {
-                    console.log("board is full")
-                }
-        
-                //If last click has filled board.
-                if (GameBoard.boardIsFull()) {
-                    heading.innerText = "Tie"
-                    GameBoard.gameIsActive = false
-                    updatePlayerRecord()
-                }
-            }
-        }
-    })
-}
-
-function playerActions(index) {
-    GameBoard.playerMove(index)
-    heading.innerText = "Opponent's Turn"
-}
-
-function aiActions() { 
-    checkFutureGameWin()
-
-    // let randomInt = getRandomInt(9)
-    // while (!isSpaceFree(GameBoard.boardArray[randomInt])) {
-    //     randomInt = getRandomInt(9)
-    // }
-
-    setTimeout(function() {
-        GameBoard.opponentMove(getBestAIMovePosition())
-        endGameIfWon()
-        if (GameBoard.gameIsActive) {
-            heading.innerText = "Player's Turn"
-        }
-        GameBoard.playerCanClick = true
-    }, 1000) 
-}
-
-function endGameIfWon() {
-    if (checkCurrentGameWin() !== "Tie") {
-        updatePlayerRecord()
-        heading.innerText = checkCurrentGameWin()
-        GameBoard.gameIsActive = false
-    }
-}
-
-function isSpaceFree(index) { return index === 0 }
-
-function getRandomInt(max) {
-    return Math.floor(Math.random() * max);
-  }
-
-function fillPlayerSquare (index) {
-    const buttons = document.querySelectorAll("[id^='square-button']")
-    buttons[index].style.backgroundImage="url(./images/o-icon.svg)"
-}
-
-function fillOpponentSquare (index) {
-    const buttons = document.querySelectorAll("[id^='square-button']")
-    buttons[index].style.backgroundImage="url(./images/x-icon.svg)"
-}
-
-function boardHasOddEmptySpaces() {
-    let emptySpaces = 0
-
-    for (let i=0; i<GameBoard.boardArray.length; i++) {
-        if (GameBoard.boardArray[i] === 0) emptySpaces++
-    }
-    if (emptySpaces % 2 !== 0) return true; else return false
-}
+// function getRandomInt(max) {
+//     return Math.floor(Math.random() * max);
+//   }
 
 function updatePlayerRecord() {
     if (checkCurrentGameWin() === "Player Win") GameBoard.updateWins("Player")
