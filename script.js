@@ -71,9 +71,9 @@ const GameBoard = (() => {
         if (whoWins === "Tie") player.ties ++
     }
 
-    //
+    const boardIsFull = () => { return !GameBoard.boardArray.includes(0) }
+
     function updateEmptySquareArray() {
-        //Can't use array = [], as that will create a new reference different than the one used when accessing this object. Must keep reference and set length to 0.
         emptySquareArray.length = 0
 
         for (let i=0; i<boardArray.length; i++) {
@@ -81,21 +81,58 @@ const GameBoard = (() => {
         }
     }
 
-    return {playerCanClick, playerMove, opponentMove, boardArray, playerArray,opponentArray, emptySquareArray, emptySquareScores, gameIsActive, updateWins, player}
+    return {boardIsFull, playerCanClick, playerMove, opponentMove, boardArray, playerArray,opponentArray, emptySquareArray, emptySquareScores, gameIsActive, updateWins, player}
 })()
+
+const DisplayController = (() => {
+    const clearBoardArray = () => {
+        for (let i=0; i<GameBoard.boardArray.length; i++) {
+            GameBoard.boardArray.splice(i, 1, 0)
+        }
+    }
+    
+    const clearPlayerAndOpponentArrays = () => {
+        GameBoard.playerArray.length = 0
+        GameBoard.opponentArray.length = 0
+    }
+    
+    const clearEmptyAndScoreSquareArrays = () => {
+        GameBoard.emptySquareArray.length = 0
+        GameBoard.emptySquareScores.length = 0
+    }
+    
+    const clearSquaresImages = () => {
+        const buttons = document.querySelectorAll("[id^='square-button']")
+        for (let i=0; i<buttons.length; i++) {
+            buttons[i].style.backgroundImage="url()"
+        }
+    }
+
+    return {clearBoardArray, clearPlayerAndOpponentArrays, clearEmptyAndScoreSquareArrays, clearSquaresImages}
+})()
+
+resetButton.addEventListener("click", () => {
+    DisplayController.clearSquaresImages()
+    DisplayController.clearBoardArray()
+    DisplayController.clearPlayerAndOpponentArrays()
+    DisplayController.clearEmptyAndScoreSquareArrays()
+    GameBoard.gameIsActive = true
+    GameBoard.playerCanClick = true
+    heading.innerText = "Player's Turn"
+})
 
 function eventListeners (button, index) {
     button.addEventListener("click", () => {
         if (GameBoard.playerCanClick) {
             if (GameBoard.gameIsActive) {
-                if (!boardIsFull()) {
+                if (!GameBoard.boardIsFull()) {
                     if (isSpaceFree(GameBoard.boardArray[index])) {
                         if (boardHasOddEmptySpaces()) {
                           playerActions(index)
                           GameBoard.playerCanClick = false
                     }
                     endGameIfWon()
-                    if (!boardIsFull()) {
+                    if (!GameBoard.boardIsFull()) {
                         aiActions()
                     }
                     }
@@ -104,7 +141,7 @@ function eventListeners (button, index) {
                 }
         
                 //If last click has filled board.
-                if (boardIsFull()) {
+                if (GameBoard.boardIsFull()) {
                     heading.innerText = "Tie"
                     GameBoard.gameIsActive = false
                     updatePlayerRecord()
@@ -239,7 +276,6 @@ function checkFutureGameWin() {
     }
 }
 
-//Todo: Multiple fast clicks for playerTurn b0rk game.
 function getBestAIMovePosition() {
     let score = 0
     let position = 0
@@ -247,8 +283,6 @@ function getBestAIMovePosition() {
     let neutralMoveArray = []
     
     for (let i=0; i<GameBoard.emptySquareArray.length; i++) {
-        //Todo: position set here overwrites subsequent loop because it ALWAYS runs while subsequent does not.
-
         if (GameBoard.emptySquareScores[GameBoard.emptySquareArray[i]] > score) {
             score = GameBoard.emptySquareScores[GameBoard.emptySquareArray[i]]
             position = GameBoard.emptySquareArray[i]
@@ -270,39 +304,4 @@ function getBestAIMovePosition() {
     console.log("final position is " + position)
 
     return position
-}
-
-resetButton.addEventListener("click", () => {
-    clearSquaresImages()
-    clearBoardArray()
-    clearPlayerAndOpponentArrays()
-    clearEmptyAndScoreSquareArrays()
-    GameBoard.gameIsActive = true
-    GameBoard.playerCanClick = true
-    heading.innerText = "Player's Turn"
-})
-
-function clearBoardArray() {
-    for (let i=0; i<GameBoard.boardArray.length; i++) {
-        GameBoard.boardArray.splice(i, 1, 0)
-    }
-}
-
-function clearPlayerAndOpponentArrays() {
-    GameBoard.playerArray.length = 0
-    GameBoard.opponentArray.length = 0
-}
-
-function clearEmptyAndScoreSquareArrays() {
-    GameBoard.emptySquareArray.length = 0
-    GameBoard.emptySquareScores.length = 0
-}
-
-function boardIsFull() { return !GameBoard.boardArray.includes(0) }
-
-function clearSquaresImages () {
-    const buttons = document.querySelectorAll("[id^='square-button']")
-    for (let i=0; i<buttons.length; i++) {
-        buttons[i].style.backgroundImage="url()"
-    }
 }
