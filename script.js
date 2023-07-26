@@ -1,3 +1,4 @@
+//Todo: AI winning not ending game
 //Todo: Easy (random) and Hard (current) difficulties.
 //Todo: Optimized minmax
 
@@ -51,6 +52,7 @@ const BoardDom = (() => {
             
                     //If last click has filled board.
                     if (GameBoard.boardIsFull()) {
+                        DisplayController.changeTurnColor("end")
                         heading.innerText = "Tie"
                         GameController.setGameIsActiveBoolean(false)
                         GameController.updatePlayerRecord()
@@ -301,8 +303,10 @@ const DisplayController = (() => {
     const changeTurnColor = (whoseTurn) => {
         if (whoseTurn === "player") {
             heading.style.color = "blue"
-        } else {
+        } else if (whoseTurn === "opponent") {
             heading.style.color = "red"
+        } else {
+            heading.style.color = "black"
         }
     }
     return {changeTurnColor, winText, lossText, tieText}
@@ -315,6 +319,7 @@ resetButton.addEventListener("click", () => {
     ResetController.clearEmptyAndScoreSquareArrays()
     GameController.setGameIsActiveBoolean(true)
     BoardDom.setPlayerClickBoolean(true)
+    DisplayController.changeTurnColor("player")
     heading.innerText = "Player's Turn"
 })
 
