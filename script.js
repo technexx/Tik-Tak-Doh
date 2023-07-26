@@ -1,3 +1,4 @@
+//Todo: CSS
 //Todo: Easy (random) and Hard (current) difficulties.
 //Todo: Optimized minmax
 
@@ -8,6 +9,17 @@ const resetButton = document.querySelector("#reset-button")
 
 heading.innerText = "Player's Turn"
 playerStatsText.innerText = "0 - 0 - 0"
+
+const DisplayController = (() => {
+    const changeTurnColor = (whoseTurn) => {
+        if (whoseTurn === "player") {
+            heading.style.color = "blue"
+        } else {
+            heading.style.color = "red"
+        }
+    }
+    return {changeTurnColor}
+})()
 
 const Player = () => {
     let wins = 0
@@ -29,6 +41,7 @@ const BoardDom = (() => {
         content.appendChild(button)
         eventListeners(button, (i))
     }
+    
     container.appendChild(content)
 
     function eventListeners (button, index) {
@@ -68,7 +81,6 @@ const BoardDom = (() => {
     return {setPlayerClickBoolean}
 })()
 
-
 const GameBoard = (() => {
     const player = Player()
 
@@ -96,7 +108,7 @@ const GameBoard = (() => {
     return {boardIsFull, boardArray, emptySquareArray, emptySquareScores, updateEmptySquareArray, player}
 })()
 
-const DisplayController = (() => {
+const ResetController = (() => {
     const clearBoardArray = () => {
         for (let i=0; i<GameBoard.boardArray.length; i++) {
             GameBoard.boardArray.splice(i, 1, 0)
@@ -135,6 +147,7 @@ const GameController = (() => {
     const playerActions = (index) => {
         playerMove(index)
         heading.innerText = "Opponent's Turn"
+        DisplayController.changeTurnColor("opponent")
     }
 
     const playerMove = (index) => {
@@ -171,6 +184,7 @@ const GameController = (() => {
                 heading.innerText = "Player's Turn"
             }
             BoardDom.setPlayerClickBoolean(true)
+            DisplayController.changeTurnColor("player")
         }, 1000) 
     }
 
@@ -288,10 +302,10 @@ const GameController = (() => {
 })()
 
 resetButton.addEventListener("click", () => {
-    DisplayController.clearSquaresImages()
-    DisplayController.clearBoardArray()
-    DisplayController.clearPlayerAndOpponentArrays()
-    DisplayController.clearEmptyAndScoreSquareArrays()
+    ResetController.clearSquaresImages()
+    ResetController.clearBoardArray()
+    ResetController.clearPlayerAndOpponentArrays()
+    ResetController.clearEmptyAndScoreSquareArrays()
     GameController.setGameIsActiveBoolean(true)
     BoardDom.setPlayerClickBoolean(true)
     heading.innerText = "Player's Turn"
