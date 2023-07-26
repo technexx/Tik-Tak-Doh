@@ -4,22 +4,9 @@
 
 const heading = document.querySelector("#heading")
 const container = document.querySelector(".container")
-const playerStatsText = document.querySelector("#win-count")
 const resetButton = document.querySelector("#reset-button")
 
 heading.innerText = "Player's Turn"
-playerStatsText.innerText = "0 - 0 - 0"
-
-const DisplayController = (() => {
-    const changeTurnColor = (whoseTurn) => {
-        if (whoseTurn === "player") {
-            heading.style.color = "blue"
-        } else {
-            heading.style.color = "red"
-        }
-    }
-    return {changeTurnColor}
-})()
 
 const Player = () => {
     let wins = 0
@@ -210,7 +197,9 @@ const GameController = (() => {
         if (checkCurrentGameWin() === "Opponent Win") updateWins("Opponent")
         if (checkCurrentGameWin() === "Tie") updateWins("Tie")
     
-        playerStatsText.innerText = GameBoard.player.wins + " - " + GameBoard.player.losses + " - " + GameBoard.player.ties
+        DisplayController.winText.innerText = "Wins: " + GameBoard.player.wins
+        DisplayController.lossText.innerText = "Losses: " + GameBoard.player.losses
+        DisplayController.tieText.innerText = "Ties: " + GameBoard.player.ties
     }
 
     
@@ -299,6 +288,25 @@ const GameController = (() => {
     }
 
     return {gameIsActive, setGameIsActiveBoolean, playerArray, opponentArray, playerActions, aiActions, playerTurn, endGameIfWon, updatePlayerRecord}
+})()
+
+const DisplayController = (() => {
+    const winText = document.querySelector("#win-count")
+    const lossText = document.querySelector("#loss-count")
+    const tieText = document.querySelector("#tie-count")
+
+    winText.innerText = "Wins: " + GameBoard.player.wins
+    lossText.innerText = "Losses: " + GameBoard.player.losses
+    tieText.innerText = "Ties: " + GameBoard.player.ties
+
+    const changeTurnColor = (whoseTurn) => {
+        if (whoseTurn === "player") {
+            heading.style.color = "blue"
+        } else {
+            heading.style.color = "red"
+        }
+    }
+    return {changeTurnColor, winText, lossText, tieText}
 })()
 
 resetButton.addEventListener("click", () => {
