@@ -262,38 +262,38 @@ const GameController = (() => {
         for (let i=0; i<9; i++) { GameBoard.emptySquareScores.push(0) }
     }
 
+    const getBestAIMovePosition = () => {
+        let score = 0
+        let position = 0
+        let nonNeutralMove = true
+        let neutralMoveArray = []
+        
+        for (let i=0; i<GameBoard.emptySquareArray.length; i++) {
+            if (GameBoard.emptySquareScores[GameBoard.emptySquareArray[i]] > score) {
+                score = GameBoard.emptySquareScores[GameBoard.emptySquareArray[i]]
+                position = GameBoard.emptySquareArray[i]
+                nonNeutralMove = false
+    
+                console.log("score is " + score)
+                console.log("scored position is " + position)
+            } else {
+                neutralMoveArray.push(GameBoard.emptySquareArray[i])
+            }
+        }
+    
+        if (nonNeutralMove) {
+            const random = Math.floor(Math.random() * neutralMoveArray.length)
+            position = neutralMoveArray[random]
+            console.log("random neutral position is " + position)
+        }
+    
+        console.log("final position is " + position)
+    
+        return position
+    }
+
     return {playerActions, aiActions, playerTurn, endGameIfWon, updatePlayerRecord}
 })()
-
-function getBestAIMovePosition() {
-    let score = 0
-    let position = 0
-    let nonNeutralMove = true
-    let neutralMoveArray = []
-    
-    for (let i=0; i<GameBoard.emptySquareArray.length; i++) {
-        if (GameBoard.emptySquareScores[GameBoard.emptySquareArray[i]] > score) {
-            score = GameBoard.emptySquareScores[GameBoard.emptySquareArray[i]]
-            position = GameBoard.emptySquareArray[i]
-            nonNeutralMove = false
-
-            console.log("score is " + score)
-            console.log("scored position is " + position)
-        } else {
-            neutralMoveArray.push(GameBoard.emptySquareArray[i])
-        }
-    }
-
-    if (nonNeutralMove) {
-        const random = Math.floor(Math.random() * neutralMoveArray.length)
-        position = neutralMoveArray[random]
-        console.log("random neutral position is " + position)
-    }
-
-    console.log("final position is " + position)
-
-    return position
-}
 
 resetButton.addEventListener("click", () => {
     DisplayController.clearSquaresImages()
