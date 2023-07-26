@@ -1,3 +1,4 @@
+//Todo: Player Record updating too much, likely because playerCanClick is true too much.
 //Todo: Easy (random) and Hard (current) difficulties.
 //Todo: Optimized minmax
 
@@ -33,14 +34,13 @@ const BoardDom = (() => {
 
     function eventListeners (button, index) {
         button.addEventListener("click", () => {
-            console.log("can click " + playerCanClick)
             if (playerCanClick) {
-                if (GameBoard.gameIsActive) {
+                if (GameController.gameIsActive) {
                     if (!GameBoard.boardIsFull()) {
                         if (isSpaceFree(GameBoard.boardArray[index])) {
                             if (GameController.playerTurn()) {
                               GameController.playerActions(index)
-                              togglePlayerClick()
+                              setPlayerClickBoolean(false)
                         }
                         GameController.endGameIfWon()
                         if (!GameBoard.boardIsFull()) {
@@ -54,7 +54,7 @@ const BoardDom = (() => {
                     //If last click has filled board.
                     if (GameBoard.boardIsFull()) {
                         heading.innerText = "Tie"
-                        GameBoard.gameIsActive = false
+                        GameController.setGameIsActiveBoolean(false)
                         GameController.updatePlayerRecord()
                     }
                 }
@@ -62,11 +62,11 @@ const BoardDom = (() => {
         })
     }
 
-    const togglePlayerClick = () => { playerCanClick = !playerCanClick }
+    const setPlayerClickBoolean = (canClick) => { playerCanClick = canClick }
 
     const isSpaceFree = (index) => { return index === 0 }
 
-    return {togglePlayerClick}
+    return {setPlayerClickBoolean}
 })()
 
 
@@ -77,8 +77,6 @@ const GameBoard = (() => {
     let boardArray = []
     let emptySquareArray = []
     let emptySquareScores = []
-
-    let gameIsActive = true
 
     for (let i=0; i<9; i++) {
         boardArray.push(EMPTY_SQUARE)
@@ -96,7 +94,7 @@ const GameBoard = (() => {
         }
     }
 
-    return {boardIsFull, boardArray, emptySquareArray, emptySquareScores, updateEmptySquareArray, gameIsActive, player}
+    return {boardIsFull, boardArray, emptySquareArray, emptySquareScores, updateEmptySquareArray, player}
 })()
 
 const DisplayController = (() => {
@@ -131,6 +129,9 @@ const GameController = (() => {
     let opponentArray = []
     let PLAYER_SQUARE = 1
     let OPPONENT_SQUARE = 2
+    let gameIsActive = true
+
+    const setGameIsActiveBoolean = (isActive) => {gameIsActive = isActive}
 
     const playerActions = (index) => {
         playerMove(index)
@@ -167,10 +168,10 @@ const GameController = (() => {
         setTimeout(function() {
             opponentMove(getBestAIMovePosition())
             endGameIfWon()
-            if (GameBoard.gameIsActive) {
+            if (GameController.gameIsActive) {
                 heading.innerText = "Player's Turn"
             }
-            BoardDom.togglePlayerClick()
+            BoardDom.setPlayerClickBoolean(true)
         }, 1000) 
     }
 
@@ -187,7 +188,7 @@ const GameController = (() => {
         if (checkCurrentGameWin() !== "Tie") {
             updatePlayerRecord()
             heading.innerText = checkCurrentGameWin()
-            GameBoard.gameIsActive = false
+            GameController.setGameIsActiveBoolean(false)
         }
     }
 
@@ -230,8 +231,6 @@ const GameController = (() => {
     
         resetEmptySquareScoresArray()
     
-        console.log("empty board array is " + GameBoard.emptySquareArray)
-    
         for (let i=0; i<GameBoard.emptySquareArray.length; i++) {
             valueToReturn = 0
     
@@ -244,9 +243,7 @@ const GameController = (() => {
             allWinsArray.forEach(function(value, index) {
                 if (allWinsArray[index].every(array => playerCheck.includes(array))) {
                     moveValue = 10
-                    GameBoard.emptySquareScores.splice(GameBoard.emptySquareArray[i], 1, moveValue)
-                    console.log("square scores are " + GameBoard.emptySquareScores)
-    
+                    GameBoard.emptySquareScores.splice(GameBoard.emptySquareArray[i], 1, moveValue)    
                 }
             })
     
@@ -254,11 +251,9 @@ const GameController = (() => {
                 if (allWinsArray[index].every(array => opponentCheck.includes(array))) {
                     moveValue = 20
                     GameBoard.emptySquareScores.splice(GameBoard.emptySquareArray[i], 1, moveValue)
-                    console.log("square scores are " + GameBoard.emptySquareScores)
                 }
             })
         }
-        console.log("square scores are " + GameBoard.emptySquareScores)
     }
 
     const resetEmptySquareScoresArray = () => {
@@ -277,9 +272,6 @@ const GameController = (() => {
                 score = GameBoard.emptySquareScores[GameBoard.emptySquareArray[i]]
                 position = GameBoard.emptySquareArray[i]
                 nonNeutralMove = false
-    
-                console.log("score is " + score)
-                console.log("scored position is " + position)
             } else {
                 neutralMoveArray.push(GameBoard.emptySquareArray[i])
             }
@@ -288,15 +280,12 @@ const GameController = (() => {
         if (nonNeutralMove) {
             const random = Math.floor(Math.random() * neutralMoveArray.length)
             position = neutralMoveArray[random]
-            console.log("random neutral position is " + position)
         }
-    
-        console.log("final position is " + position)
-    
+
         return position
     }
 
-    return {playerArray, opponentArray, playerActions, aiActions, playerTurn, endGameIfWon, updatePlayerRecord}
+    return {gameIsActive, setGameIsActiveBoolean, playerArray, opponentArray, playerActions, aiActions, playerTurn, endGameIfWon, updatePlayerRecord}
 })()
 
 resetButton.addEventListener("click", () => {
@@ -304,8 +293,8 @@ resetButton.addEventListener("click", () => {
     DisplayController.clearBoardArray()
     DisplayController.clearPlayerAndOpponentArrays()
     DisplayController.clearEmptyAndScoreSquareArrays()
-    GameBoard.gameIsActive = true
-    BoardDom.playerCanClick = true
+    GameController.setGameIsActiveBoolean(true)
+    BoardDom.setPlayerClickBoolean(true)
     heading.innerText = "Player's Turn"
 })
 
