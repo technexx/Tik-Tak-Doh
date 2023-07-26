@@ -1,3 +1,5 @@
+//Todo: Easy (random) and Hard (current) difficulties.
+//Todo: Optimized minmax
 
 const heading = document.querySelector("#heading")
 const container = document.querySelector(".container")
@@ -71,12 +73,7 @@ const GameBoard = (() => {
     const player = Player()
 
     let EMPTY_SQUARE = 0
-    let PLAYER_SQUARE = 1
-    let OPPONENT_SQUARE = 2
-
     let boardArray = []
-    let playerArray = []
-    let opponentArray = []
     let emptySquareArray = []
     let emptySquareScores = []
 
@@ -86,36 +83,6 @@ const GameBoard = (() => {
         boardArray.push(EMPTY_SQUARE)
         emptySquareArray.push(EMPTY_SQUARE)
         emptySquareScores.push(0)
-    }
-        
-    const playerMove = (index) => {
-        boardArray.splice(index, 1, PLAYER_SQUARE)
-        playerArray.push(index)
-        fillPlayerSquare(index)
-        updateEmptySquareArray()
-    }
-
-    const opponentMove = (index) => {
-        boardArray.splice(index, 1, OPPONENT_SQUARE)
-        opponentArray.push(index)
-        fillOpponentSquare(index)
-        updateEmptySquareArray()
-    }
-
-    const fillPlayerSquare = (index) => {
-        const buttons = document.querySelectorAll("[id^='square-button']")
-        buttons[index].style.backgroundImage="url(./images/o-icon.svg)"
-    }
-    
-    const fillOpponentSquare = (index) => {
-        const buttons = document.querySelectorAll("[id^='square-button']")
-        buttons[index].style.backgroundImage="url(./images/x-icon.svg)"
-    }
-
-    const updateWins = (whoWins) => {
-        if (whoWins === "Player") player.wins ++
-        if (whoWins === "Opponent") player.losses ++
-        if (whoWins === "Tie") player.ties ++
     }
 
     const boardIsFull = () => { return !GameBoard.boardArray.includes(0) }
@@ -128,7 +95,7 @@ const GameBoard = (() => {
         }
     }
 
-    return {boardIsFull, playerMove, opponentMove, boardArray, playerArray,opponentArray, emptySquareArray, emptySquareScores, gameIsActive, updateWins, player}
+    return {boardIsFull, boardArray, emptySquareArray, emptySquareScores, updateEmptySquareArray, gameIsActive, player}
 })()
 
 const DisplayController = (() => {
@@ -139,8 +106,8 @@ const DisplayController = (() => {
     }
     
     const clearPlayerAndOpponentArrays = () => {
-        GameBoard.playerArray.length = 0
-        GameBoard.opponentArray.length = 0
+        GameController.playerArray.length = 0
+        GameController.opponentArray.length = 0
     }
     
     const clearEmptyAndScoreSquareArrays = () => {
@@ -159,16 +126,45 @@ const DisplayController = (() => {
 })()
 
 const GameController = (() => {
+    let playerArray = []
+    let opponentArray = []
+    let PLAYER_SQUARE = 1
+    let OPPONENT_SQUARE = 2
+
     const playerActions = (index) => {
-        GameBoard.playerMove(index)
+        playerMove(index)
         heading.innerText = "Opponent's Turn"
+    }
+
+    const playerMove = (index) => {
+        GameBoard.boardArray.splice(index, 1, PLAYER_SQUARE)
+        playerArray.push(index)
+        fillPlayerSquare(index)
+        GameBoard.updateEmptySquareArray()
+    }
+
+    const opponentMove = (index) => {
+        GameBoard.boardArray.splice(index, 1, OPPONENT_SQUARE)
+        opponentArray.push(index)
+        fillOpponentSquare(index)
+        GameBoard.updateEmptySquareArray()
+    }
+
+    const fillPlayerSquare = (index) => {
+        const buttons = document.querySelectorAll("[id^='square-button']")
+        buttons[index].style.backgroundImage="url(./images/o-icon.svg)"
+    }
+    
+    const fillOpponentSquare = (index) => {
+        const buttons = document.querySelectorAll("[id^='square-button']")
+        buttons[index].style.backgroundImage="url(./images/x-icon.svg)"
     }
     
     const aiActions = () => { 
         checkFutureGameWin()
     
         setTimeout(function() {
-            GameBoard.opponentMove(getBestAIMovePosition())
+            opponentMove(getBestAIMovePosition())
             endGameIfWon()
             if (GameBoard.gameIsActive) {
                 heading.innerText = "Player's Turn"
@@ -195,11 +191,18 @@ const GameController = (() => {
     }
 
     const updatePlayerRecord = () => {
-        if (checkCurrentGameWin() === "Player Win") GameBoard.updateWins("Player")
-        if (checkCurrentGameWin() === "Opponent Win") GameBoard.updateWins("Opponent")
-        if (checkCurrentGameWin() === "Tie") GameBoard.updateWins("Tie")
+        if (checkCurrentGameWin() === "Player Win") updateWins("Player")
+        if (checkCurrentGameWin() === "Opponent Win") updateWins("Opponent")
+        if (checkCurrentGameWin() === "Tie") updateWins("Tie")
     
         playerStatsText.innerText = GameBoard.player.wins + " - " + GameBoard.player.losses + " - " + GameBoard.player.ties
+    }
+
+    
+    const updateWins = (whoWins) => {
+        if (whoWins === "Player") player.wins ++
+        if (whoWins === "Opponent") player.losses ++
+        if (whoWins === "Tie") player.ties ++
     }
     
     const checkCurrentGameWin = () => {
@@ -208,11 +211,11 @@ const GameController = (() => {
         const allWinsArray = [ [0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6] ]
     
         for (let i=0; i<allWinsArray.length; i++) {
-            if (allWinsArray[i].every(array => GameBoard.playerArray.includes(array))) {
+            if (allWinsArray[i].every(array => GameController.playerArray.includes(array))) {
                 valueToReturn = "Player Win"
             }
     
-            if (allWinsArray[i].every(array => GameBoard.opponentArray.includes(array))) {
+            if (allWinsArray[i].every(array => GameController.opponentArray.includes(array))) {
                 valueToReturn = "Opponent Win"
             }
         }
@@ -231,8 +234,8 @@ const GameController = (() => {
         for (let i=0; i<GameBoard.emptySquareArray.length; i++) {
             valueToReturn = 0
     
-            const playerCheck =  JSON.parse(JSON.stringify(GameBoard.playerArray)); 
-            const opponentCheck =  JSON.parse(JSON.stringify(GameBoard.opponentArray)); 
+            const playerCheck =  JSON.parse(JSON.stringify(playerArray)); 
+            const opponentCheck =  JSON.parse(JSON.stringify(opponentArray)); 
     
             playerCheck.push(GameBoard.emptySquareArray[i])
             opponentCheck.push(GameBoard.emptySquareArray[i])
@@ -292,7 +295,7 @@ const GameController = (() => {
         return position
     }
 
-    return {playerActions, aiActions, playerTurn, endGameIfWon, updatePlayerRecord}
+    return {playerArray, opponentArray, playerActions, aiActions, playerTurn, endGameIfWon, updatePlayerRecord}
 })()
 
 resetButton.addEventListener("click", () => {
