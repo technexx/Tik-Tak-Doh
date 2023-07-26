@@ -1,4 +1,3 @@
-//Todo: Player Record updating too much, likely because playerCanClick is true too much.
 //Todo: Easy (random) and Hard (current) difficulties.
 //Todo: Optimized minmax
 
