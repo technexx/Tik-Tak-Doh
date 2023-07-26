@@ -1,4 +1,3 @@
-//Todo: CSS
 //Todo: Easy (random) and Hard (current) difficulties.
 //Todo: Optimized minmax
 
