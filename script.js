@@ -1,4 +1,3 @@
-//Todo: gameIsActive set methods not working.
 //Todo: Easy (random) and Hard (current) difficulties.
 //Todo: Optimized minmax
 
@@ -33,6 +32,7 @@ const BoardDom = (() => {
 
     function eventListeners (button, index) {
         button.addEventListener("click", () => {
+            console.log("gameActive is " + GameController.gameIsActive)
             if (GameController.gameIsActive) {
                 if (BoardDom.playerCanClick) {
                     if (GameController.gameIsActive) {
@@ -317,7 +317,7 @@ resetButton.addEventListener("click", () => {
     ResetController.clearBoardArray()
     ResetController.clearPlayerAndOpponentArrays()
     ResetController.clearEmptyAndScoreSquareArrays()
-    GameController.gameIsActive = false
+    GameController.gameIsActive = true
     BoardDom.playerCanClick = true
     DisplayController.changeTurnColor("player")
     heading.innerText = "Player's Turn"
