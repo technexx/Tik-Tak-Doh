@@ -1,4 +1,4 @@
-//Todo: AI winning not ending game
+//Todo: gameIsActive set methods not working.
 //Todo: Easy (random) and Hard (current) difficulties.
 //Todo: Optimized minmax
 
@@ -33,40 +33,40 @@ const BoardDom = (() => {
 
     function eventListeners (button, index) {
         button.addEventListener("click", () => {
-            if (playerCanClick) {
-                if (GameController.gameIsActive) {
-                    if (!GameBoard.boardIsFull()) {
-                        if (isSpaceFree(GameBoard.boardArray[index])) {
-                            if (GameController.playerTurn()) {
-                              GameController.playerActions(index)
-                              setPlayerClickBoolean(false)
-                        }
-                        GameController.endGameIfWon()
+            if (GameController.gameIsActive) {
+                if (BoardDom.playerCanClick) {
+                    if (GameController.gameIsActive) {
                         if (!GameBoard.boardIsFull()) {
-                            GameController.aiActions()
+                            if (isSpaceFree(GameBoard.boardArray[index])) {
+                                if (GameController.playerTurn()) {
+                                  GameController.playerActions(index)
+                                  BoardDom.playerCanClick = false
+                            }
+                            GameController.endGameIfWon()
+                            if (!GameBoard.boardIsFull()) {
+                                GameController.aiActions()
+                            }
+                            }
+                        } else {
+                            console.log("board is full")
                         }
+                
+                        //If last click has filled board.
+                        if (GameBoard.boardIsFull()) {
+                            DisplayController.changeTurnColor("end")
+                            heading.innerText = "Tie"
+                            GameController.gameIsActive = false
+                            GameController.updatePlayerRecord()
                         }
-                    } else {
-                        console.log("board is full")
-                    }
-            
-                    //If last click has filled board.
-                    if (GameBoard.boardIsFull()) {
-                        DisplayController.changeTurnColor("end")
-                        heading.innerText = "Tie"
-                        GameController.setGameIsActiveBoolean(false)
-                        GameController.updatePlayerRecord()
                     }
                 }
             }
         })
     }
 
-    const setPlayerClickBoolean = (canClick) => { playerCanClick = canClick }
-
     const isSpaceFree = (index) => { return index === 0 }
 
-    return {setPlayerClickBoolean}
+    return {playerCanClick}
 })()
 
 const GameBoard = (() => {
@@ -130,8 +130,6 @@ const GameController = (() => {
     let OPPONENT_SQUARE = 2
     let gameIsActive = true
 
-    const setGameIsActiveBoolean = (isActive) => {gameIsActive = isActive}
-
     const playerActions = (index) => {
         playerMove(index)
         heading.innerText = "Opponent's Turn"
@@ -171,7 +169,8 @@ const GameController = (() => {
             if (GameController.gameIsActive) {
                 heading.innerText = "Player's Turn"
             }
-            BoardDom.setPlayerClickBoolean(true)
+            BoardDom.playerCanClick = true
+            console.log("can click" + BoardDom.playerCanClick)
             DisplayController.changeTurnColor("player")
         }, 1000) 
     }
@@ -187,9 +186,11 @@ const GameController = (() => {
 
     const endGameIfWon = () => {
         if (checkCurrentGameWin() !== "Tie") {
+            console.log("game ending")
+
             updatePlayerRecord()
             heading.innerText = checkCurrentGameWin()
-            GameController.setGameIsActiveBoolean(false)
+            GameController.gameIsActive = false
         }
     }
 
@@ -202,7 +203,6 @@ const GameController = (() => {
         DisplayController.lossText.innerText = "Losses: " + GameBoard.player.losses
         DisplayController.tieText.innerText = "Ties: " + GameBoard.player.ties
     }
-
     
     const updateWins = (whoWins) => {
         if (whoWins === "Player") GameBoard.player.wins ++
@@ -288,7 +288,7 @@ const GameController = (() => {
         return position
     }
 
-    return {gameIsActive, setGameIsActiveBoolean, playerArray, opponentArray, playerActions, aiActions, playerTurn, endGameIfWon, updatePlayerRecord}
+    return {gameIsActive, playerArray, opponentArray, playerActions, aiActions, playerTurn, endGameIfWon, updatePlayerRecord}
 })()
 
 const DisplayController = (() => {
@@ -317,8 +317,8 @@ resetButton.addEventListener("click", () => {
     ResetController.clearBoardArray()
     ResetController.clearPlayerAndOpponentArrays()
     ResetController.clearEmptyAndScoreSquareArrays()
-    GameController.setGameIsActiveBoolean(true)
-    BoardDom.setPlayerClickBoolean(true)
+    GameController.gameIsActive = false
+    BoardDom.playerCanClick = true
     DisplayController.changeTurnColor("player")
     heading.innerText = "Player's Turn"
 })
