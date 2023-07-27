@@ -75,12 +75,10 @@ const GameBoard = (() => {
     let EMPTY_SQUARE = 0
     let boardArray = []
     let emptySquareArray = []
-    let emptySquareScores = []
 
     for (let i=0; i<9; i++) {
         boardArray.push(EMPTY_SQUARE)
         emptySquareArray.push(EMPTY_SQUARE)
-        emptySquareScores.push(0)
     }
 
     const boardIsFull = () => { return !GameBoard.boardArray.includes(0) }
@@ -93,7 +91,7 @@ const GameBoard = (() => {
         }
     }
 
-    return {boardIsFull, boardArray, emptySquareArray, emptySquareScores, updateEmptySquareArray, player}
+    return {boardIsFull, boardArray, emptySquareArray, updateEmptySquareArray, player}
 })()
 
 const ResetController = (() => {
@@ -110,7 +108,6 @@ const ResetController = (() => {
     
     const clearEmptyAndScoreSquareArrays = () => {
         GameBoard.emptySquareArray.length = 0
-        GameBoard.emptySquareScores.length = 0
     }
     
     const clearSquaresImages = () => {
@@ -227,65 +224,40 @@ const GameController = (() => {
         return valueToReturn
     }
 
+    //Empty square array contains only values of empty spots (e.g. [3, 5, 7])
     const checkFutureGameWin = () => {
         let moveValue = 0
-    
+        let movesArray = []
         const allWinsArray = [ [0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6] ]
-    
-        resetEmptySquareScoresArray()
-    
+        const futureEmptyArray = JSON.parse(JSON.stringify(GameBoard.emptySquareArray))
+        
         for (let i=0; i<GameBoard.emptySquareArray.length; i++) {
-            valueToReturn = 0
-    
             const playerCheck =  JSON.parse(JSON.stringify(playerArray)); 
             const opponentCheck =  JSON.parse(JSON.stringify(opponentArray)); 
     
             playerCheck.push(GameBoard.emptySquareArray[i])
             opponentCheck.push(GameBoard.emptySquareArray[i])
     
+            //Todo: Repeat for every new board state.
             allWinsArray.forEach(function(value, index) {
                 if (allWinsArray[index].every(array => playerCheck.includes(array))) {
-                    moveValue = 10
-                    GameBoard.emptySquareScores.splice(GameBoard.emptySquareArray[i], 1, moveValue)    
+                    moveValue = 10  
+                } else {
+                    //Removes empty space taken by anticipated move in our future board.
+                    futureEmptyArray.splice(GameBoard.emptySquareArray[i], 1)
                 }
             })
     
             allWinsArray.forEach(function(value, index) {
                 if (allWinsArray[index].every(array => opponentCheck.includes(array))) {
-                    moveValue = 20
-                    GameBoard.emptySquareScores.splice(GameBoard.emptySquareArray[i], 1, moveValue)
+                    moveValue = -10
+                } else {
+                    futureEmptyArray.splice(GameBoard.emptySquareArray[i], 1)
                 }
             })
         }
-    }
 
-    const resetEmptySquareScoresArray = () => {
-        GameBoard.emptySquareScores.length = 0
-        for (let i=0; i<9; i++) { GameBoard.emptySquareScores.push(0) }
-    }
 
-    const getBestAIMovePosition = () => {
-        let score = 0
-        let position = 0
-        let nonNeutralMove = true
-        let neutralMoveArray = []
-        
-        for (let i=0; i<GameBoard.emptySquareArray.length; i++) {
-            if (GameBoard.emptySquareScores[GameBoard.emptySquareArray[i]] > score) {
-                score = GameBoard.emptySquareScores[GameBoard.emptySquareArray[i]]
-                position = GameBoard.emptySquareArray[i]
-                nonNeutralMove = false
-            } else {
-                neutralMoveArray.push(GameBoard.emptySquareArray[i])
-            }
-        }
-    
-        if (nonNeutralMove) {
-            const random = Math.floor(Math.random() * neutralMoveArray.length)
-            position = neutralMoveArray[random]
-        }
-
-        return position
     }
 
     return {gameIsActive, playerArray, opponentArray, playerActions, aiActions, playerTurn, endGameIfWon, updatePlayerRecord}
