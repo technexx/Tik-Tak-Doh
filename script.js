@@ -32,7 +32,6 @@ const BoardDom = (() => {
 
     function eventListeners (button, index) {
         button.addEventListener("click", () => {
-            console.log("gameActive is " + GameController.gameIsActive)
             if (GameController.gameIsActive) {
                 if (BoardDom.playerCanClick) {
                     if (GameController.gameIsActive) {
@@ -161,13 +160,11 @@ const GameController = (() => {
         checkFutureGameWin()
     
         setTimeout(function() {
-            opponentMove(getBestAIMovePosition())
             endGameIfWon()
             if (GameController.gameIsActive) {
                 heading.innerText = "Player's Turn"
             }
             BoardDom.playerCanClick = true
-            console.log("can click" + BoardDom.playerCanClick)
             DisplayController.changeTurnColor("player")
         }, 1000) 
     }
@@ -229,35 +226,62 @@ const GameController = (() => {
         let moveValue = 0
         let movesArray = []
         const allWinsArray = [ [0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6] ]
+
+        //Todo: Don't think we need future board w/ both empty spaces and player/opponent arrays.
+
         const futureEmptyArray = JSON.parse(JSON.stringify(GameBoard.emptySquareArray))
-        
-        for (let i=0; i<GameBoard.emptySquareArray.length; i++) {
-            const playerCheck =  JSON.parse(JSON.stringify(playerArray)); 
-            const opponentCheck =  JSON.parse(JSON.stringify(opponentArray)); 
-    
-            playerCheck.push(GameBoard.emptySquareArray[i])
-            opponentCheck.push(GameBoard.emptySquareArray[i])
-    
-            //Todo: Repeat for every new board state.
+        const futureBoard = JSON.parse(JSON.stringify(GameBoard.boardArray))
+        const futureOpponentArray =  JSON.parse(JSON.stringify(opponentArray)); 
+        const futurePlayerArray =  JSON.parse(JSON.stringify(playerArray)); 
+
+        const checkOpponentBoard = () => {
             allWinsArray.forEach(function(value, index) {
-                if (allWinsArray[index].every(array => playerCheck.includes(array))) {
-                    moveValue = 10  
+                if (allWinsArray[index].every(array => futureOpponentArray.includes(array))) {
+                    return true
                 } else {
-                    //Removes empty space taken by anticipated move in our future board.
-                    futureEmptyArray.splice(GameBoard.emptySquareArray[i], 1)
-                }
-            })
-    
-            allWinsArray.forEach(function(value, index) {
-                if (allWinsArray[index].every(array => opponentCheck.includes(array))) {
-                    moveValue = -10
-                } else {
-                    futureEmptyArray.splice(GameBoard.emptySquareArray[i], 1)
+                    return false
                 }
             })
         }
 
+        const checkPlayerBoard = () => {
+            allWinsArray.forEach(function(value, index) {
+                if (allWinsArray[index].every(array => futurePlayerArray.includes(array))) {
+                    return true
+                } else {
+                    return false
+                }
+            })
+        }
+        
+        for (let i=0; i<futureEmptyArray.length; i++) {
+            futureOpponentArray.push(futureEmptyArray[i])
 
+            if (!checkOpponentBoard) {
+                futureOpponentArray.push(futureEmptyArray[i])
+                futureEmptyArray.splice(futureEmptyArray[i], 1)
+                checkPlayerBoard()
+                console.log("opponent checked, no win in state")
+            } else {
+                moveValue = 10
+                console.log("future opponent array is " + futureOpponentArray)
+                console.log("opponent checked, win in state")
+                break
+            }
+
+            futurePlayerArray.push(futureEmptyArray[i])
+
+            if (!checkPlayerBoard()) {
+                futurePlayerArray.push(futureEmptyArray[i])
+                futureEmptyArray.splice(futureEmptyArray[i], 1)
+                checkOpponentBoard()
+                console.log("player checked, no win in state")
+            } else {
+                moveValue = -10
+                console.log("player checked, win in state")
+                break
+            }
+        }
     }
 
     return {gameIsActive, playerArray, opponentArray, playerActions, aiActions, playerTurn, endGameIfWon, updatePlayerRecord}
