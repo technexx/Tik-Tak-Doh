@@ -227,19 +227,18 @@ const GameController = (() => {
         let movesArray = []
         const allWinsArray = [ [0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6] ]
 
-        //Todo: Don't think we need future board w/ both empty spaces and player/opponent arrays.
-
         const futureEmptyArray = JSON.parse(JSON.stringify(GameBoard.emptySquareArray))
-        const futureBoard = JSON.parse(JSON.stringify(GameBoard.boardArray))
-        const futureOpponentArray =  JSON.parse(JSON.stringify(opponentArray)); 
-        const futurePlayerArray =  JSON.parse(JSON.stringify(playerArray)); 
+        let futureOpponentArray =  JSON.parse(JSON.stringify(opponentArray)); 
+        let futurePlayerArray =  JSON.parse(JSON.stringify(playerArray)); 
+
+        let endMoveReached = false
 
         const checkOpponentBoard = () => {
             allWinsArray.forEach(function(value, index) {
                 if (allWinsArray[index].every(array => futureOpponentArray.includes(array))) {
-                    return true
+                    endMoveReached = true
                 } else {
-                    return false
+                    endMoveReached = false
                 }
             })
         }
@@ -247,17 +246,19 @@ const GameController = (() => {
         const checkPlayerBoard = () => {
             allWinsArray.forEach(function(value, index) {
                 if (allWinsArray[index].every(array => futurePlayerArray.includes(array))) {
-                    return true
+                    endMoveReached = true
                 } else {
-                    return false
+                    endMoveReached = false
                 }
             })
         }
         
         for (let i=0; i<futureEmptyArray.length; i++) {
+            //Todo: Need to reset opponent array each iteration to simulate a single move, otherwise it will fill up.
+            futureOpponentArray =  JSON.parse(JSON.stringify(opponentArray));
             futureOpponentArray.push(futureEmptyArray[i])
 
-            if (!checkOpponentBoard) {
+            if (!endMoveReached) {
                 futureOpponentArray.push(futureEmptyArray[i])
                 futureEmptyArray.splice(futureEmptyArray[i], 1)
                 checkPlayerBoard()
@@ -269,9 +270,10 @@ const GameController = (() => {
                 break
             }
 
+            futurePlayerArray =  JSON.parse(JSON.stringify(playerArray));
             futurePlayerArray.push(futureEmptyArray[i])
 
-            if (!checkPlayerBoard()) {
+            if (!endMoveReached) {
                 futurePlayerArray.push(futureEmptyArray[i])
                 futureEmptyArray.splice(futureEmptyArray[i], 1)
                 checkOpponentBoard()
