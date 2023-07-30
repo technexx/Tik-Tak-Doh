@@ -233,7 +233,7 @@ const GameController = (() => {
         let futurePlayerArray = JSON.parse(JSON.stringify(playerArray)); 
 
         let endMoveReached = false
-
+        
         const checkOpponentBoard = () => {
             allWinsArray.forEach(function(value, index) {
                 if (allWinsArray[index].every(array => futureOpponentArray.includes(array))) {
@@ -254,38 +254,40 @@ const GameController = (() => {
             })
         }
 
-        iterateEmpties("opponent")
+        iterateOpponentBoard()
 
-        function iterateEmpties(whoseTurn) {
-            for (let i=0; futureEmptyArray.length; i++) {
-                if (whoseTurn === "opponent") {
-                    futureOpponentArray.push(futureEmptyArray[0])
-                    checkOpponentBoard()
-    
-                    if (!endMoveReached) {
-                        futureEmptyArray.splice(0, 1)
-                        iterateEmpties("player")
-                    } else {
-                        moveValue = 10
-                    }
+        function iterateOpponentBoard() {
+            for (let i=0; i<futureEmptyArray.length; i++) {
+                futureOpponentArray.push(futureEmptyArray[i])
+                checkOpponentBoard()
+
+                console.log("future array post-push is " + futureOpponentArray)
+
+                if (!endMoveReached) {
+                    moveValue = 0
+                    console.log("opponent end move NOT reached")
+                } else {
+                    moveValue = 10
+                    console.log("opponent end move reached")
                 }
-    
-                if (whoseTurn === "player") {
-                    futurePlayerArray.push(futureEmptyArray[0])
-                    checkPlayerBoard()
-    
-                    if (!endMoveReached) {
-                        futureEmptyArray.splice(0, 1)
-                        iterateEmpties("opponent")
-                    } else {
-                        moveValue = -10
-                    }
+                futureOpponentArray.splice(futureOpponentArray.length -1, 1)
+                console.log("future array post-delete is " + futureOpponentArray)
+            }
+        }
+
+        function iteratePlayerBoard() {
+            for (let i=0; i<futureEmptyArray.length; i++) {
+                futurePlayerArray.push(futureEmptyArray[i])
+                checkPlayerBoard()
+
+                if (!endMoveReached) {
+                    futureEmptyArray.splice(0, 1)
+                    iterateOpponentBoard()
+                } else {
+                    moveValue = -10
+                    break
                 }
             }
-
-            // console.log("future empty array is " + futureEmptyArray)
-            console.log("future opponent array is " + futureOpponentArray)
-            console.log("future player array is " + futurePlayerArray)
         }
     }
 
