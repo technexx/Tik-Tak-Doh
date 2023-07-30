@@ -234,7 +234,7 @@ const GameController = (() => {
 
         let endMoveReached = false
 
-        let moveArray = []
+        let moveArray = [0, 0, 0, 0, 0, 0, 0, 0, 0]
         
         const checkOpponentBoard = () => {
             allWinsArray.forEach(function(value, index) {
@@ -256,26 +256,24 @@ const GameController = (() => {
             })
         }
 
+        //Iterates over player/AI potential moves, and updates moveArray spot if any are +10/-10
         iterateOpponentBoard()
+        iteratePlayerBoard()
+        iterateMoveArrayAndHaveAIMove()
 
         function iterateOpponentBoard() {
             for (let i=0; i<futureEmptyArray.length; i++) {
                 futureOpponentArray.push(futureEmptyArray[i])
                 checkOpponentBoard()
 
-                // console.log("future array post-push is " + futureOpponentArray)
-
                 if (!endMoveReached) {
                     console.log("opponent end move NOT reached")
-                    moveArray.push[0]
-                    iteratePlayerBoard()
                 } else {
                     console.log("opponent end move reached")
-                    moveArray.push[10]
-                    break
+                    moveArray.splice[i, 0, 10]
                 }
                 futureOpponentArray.splice(futureOpponentArray.length -1, 1)
-                // console.log("future array post-delete is " + futureOpponentArray)
+                console.log("moveArray in opponent is " + moveArray)
             }
         }
 
@@ -286,17 +284,36 @@ const GameController = (() => {
 
                 if (!endMoveReached) {
                     console.log("player end move NOT reached")
-                    moveArray.push[0]
-                    iterateOpponentBoard()
                 } else {
                     console.log("player end move reached")
-                    moveArray.push(-10)
-                    break
+                    moveArray.splice[i, 0, 10]
                 }
                 futurePlayerArray.splice(futurePlayerArray.length -1, 1)
+                console.log("moveArray in player is " + moveArray)
             }
         }
+
+        //If greater than 0, move. If 0, roll random. If neither (i.e. -10), that means AI has lost and has to take that move.
+        function iterateMoveArrayAndHaveAIMove() {
+            let moveIndex = 0;
+            for (let i=0; i<moveArray.length; i++)  {
+                if (moveArray[i] > 0) {
+                    moveIndex = i
+                    console.log("opponent positive move is " + moveIndex)
+                } else if (moveArray[i] === 0) {
+                    moveIndex = getRandomInt(GameBoard.emptySquareArray.length -1)
+                } else {
+                    moveIndex = i
+                }
+            }
+
+            GameController.opponentMove(moveIndex)
+        }
     }
+
+    function getRandomInt(max) {
+        return Math.floor(Math.random() * max);
+      }
 
     return {gameIsActive, playerArray, opponentArray, playerActions, aiActions, playerTurn, endGameIfWon, updatePlayerRecord}
 })()
@@ -332,7 +349,3 @@ resetButton.addEventListener("click", () => {
     DisplayController.changeTurnColor("player")
     heading.innerText = "Player's Turn"
 })
-
-// function getRandomInt(max) {
-//     return Math.floor(Math.random() * max);
-//   }
