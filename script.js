@@ -156,11 +156,9 @@ const GameController = (() => {
         buttons[index].style.backgroundImage="url(./images/x-icon.svg)"
     }
     
-    const aiActions = () => { 
-        checkFutureGameWin()
-    
+    const aiActions = () => {     
         setTimeout(function() {
-            // opponentMove()
+            checkFutureGameWin()
             endGameIfWon()
             if (GameController.gameIsActive) {
                 heading.innerText = "Player's Turn"
@@ -307,7 +305,7 @@ const GameController = (() => {
                 }
             }
 
-            GameController.opponentMove(moveIndex)
+            opponentMove(moveIndex)
         }
     }
 
