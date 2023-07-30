@@ -160,6 +160,7 @@ const GameController = (() => {
         checkFutureGameWin()
     
         setTimeout(function() {
+            // opponentMove()
             endGameIfWon()
             if (GameController.gameIsActive) {
                 heading.innerText = "Player's Turn"
@@ -228,8 +229,8 @@ const GameController = (() => {
         const allWinsArray = [ [0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6] ]
 
         const futureEmptyArray = JSON.parse(JSON.stringify(GameBoard.emptySquareArray))
-        let futureOpponentArray =  JSON.parse(JSON.stringify(opponentArray)); 
-        let futurePlayerArray =  JSON.parse(JSON.stringify(playerArray)); 
+        let futureOpponentArray = JSON.parse(JSON.stringify(opponentArray)); 
+        let futurePlayerArray = JSON.parse(JSON.stringify(playerArray)); 
 
         let endMoveReached = false
 
@@ -252,37 +253,39 @@ const GameController = (() => {
                 }
             })
         }
-        
-        for (let i=0; i<futureEmptyArray.length; i++) {
-            //Todo: Need to reset opponent array each iteration to simulate a single move, otherwise it will fill up.
-            futureOpponentArray =  JSON.parse(JSON.stringify(opponentArray));
-            futureOpponentArray.push(futureEmptyArray[i])
 
-            if (!endMoveReached) {
-                futureOpponentArray.push(futureEmptyArray[i])
-                futureEmptyArray.splice(futureEmptyArray[i], 1)
-                checkPlayerBoard()
-                console.log("opponent checked, no win in state")
-            } else {
-                moveValue = 10
-                console.log("future opponent array is " + futureOpponentArray)
-                console.log("opponent checked, win in state")
-                break
+        iterateEmpties("opponent")
+
+        function iterateEmpties(whoseTurn) {
+            for (let i=0; futureEmptyArray.length; i++) {
+                if (whoseTurn === "opponent") {
+                    futureOpponentArray.push(futureEmptyArray[0])
+                    checkOpponentBoard()
+    
+                    if (!endMoveReached) {
+                        futureEmptyArray.splice(0, 1)
+                        iterateEmpties("player")
+                    } else {
+                        moveValue = 10
+                    }
+                }
+    
+                if (whoseTurn === "player") {
+                    futurePlayerArray.push(futureEmptyArray[0])
+                    checkPlayerBoard()
+    
+                    if (!endMoveReached) {
+                        futureEmptyArray.splice(0, 1)
+                        iterateEmpties("opponent")
+                    } else {
+                        moveValue = -10
+                    }
+                }
             }
 
-            futurePlayerArray =  JSON.parse(JSON.stringify(playerArray));
-            futurePlayerArray.push(futureEmptyArray[i])
-
-            if (!endMoveReached) {
-                futurePlayerArray.push(futureEmptyArray[i])
-                futureEmptyArray.splice(futureEmptyArray[i], 1)
-                checkOpponentBoard()
-                console.log("player checked, no win in state")
-            } else {
-                moveValue = -10
-                console.log("player checked, win in state")
-                break
-            }
+            // console.log("future empty array is " + futureEmptyArray)
+            console.log("future opponent array is " + futureOpponentArray)
+            console.log("future player array is " + futurePlayerArray)
         }
     }
 
