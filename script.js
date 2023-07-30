@@ -233,6 +233,8 @@ const GameController = (() => {
         let futurePlayerArray = JSON.parse(JSON.stringify(playerArray)); 
 
         let endMoveReached = false
+
+        let moveArray = []
         
         const checkOpponentBoard = () => {
             allWinsArray.forEach(function(value, index) {
@@ -261,17 +263,19 @@ const GameController = (() => {
                 futureOpponentArray.push(futureEmptyArray[i])
                 checkOpponentBoard()
 
-                console.log("future array post-push is " + futureOpponentArray)
+                // console.log("future array post-push is " + futureOpponentArray)
 
                 if (!endMoveReached) {
-                    moveValue = 0
                     console.log("opponent end move NOT reached")
+                    moveArray.push[0]
+                    iteratePlayerBoard()
                 } else {
-                    moveValue = 10
                     console.log("opponent end move reached")
+                    moveArray.push[10]
+                    break
                 }
                 futureOpponentArray.splice(futureOpponentArray.length -1, 1)
-                console.log("future array post-delete is " + futureOpponentArray)
+                // console.log("future array post-delete is " + futureOpponentArray)
             }
         }
 
@@ -281,12 +285,15 @@ const GameController = (() => {
                 checkPlayerBoard()
 
                 if (!endMoveReached) {
-                    futureEmptyArray.splice(0, 1)
+                    console.log("player end move NOT reached")
+                    moveArray.push[0]
                     iterateOpponentBoard()
                 } else {
-                    moveValue = -10
+                    console.log("player end move reached")
+                    moveArray.push(-10)
                     break
                 }
+                futurePlayerArray.splice(futurePlayerArray.length -1, 1)
             }
         }
     }
