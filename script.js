@@ -230,18 +230,16 @@ const GameController = (() => {
         let futureOpponentArray = JSON.parse(JSON.stringify(opponentArray)); 
         let futurePlayerArray = JSON.parse(JSON.stringify(playerArray)); 
 
-        let endMoveReached = false
+        let playerEndReached = false
+        let opponentEndReached = false
 
         let moveArray = [0, 0, 0, 0, 0, 0, 0, 0, 0]
         
         const checkOpponentWin = () => {
             allWinsArray.forEach(function(value, index) {
                 if (allWinsArray[index].every(array => futureOpponentArray.includes(array))) {
-                    endMoveReached = true
-                    return true
+                    opponentEndReached = true
                 } else {
-                    endMoveReached = false
-                    return false
                 }
             })
         }
@@ -249,11 +247,9 @@ const GameController = (() => {
         const checkPlayerWin = () => {
             allWinsArray.forEach(function(value, index) {
                 if (allWinsArray[index].every(array => futurePlayerArray.includes(array))) {
-                    endMoveReached = true
-                    return true
+                    playerEndReached = true
                 } else {
-                    endMoveReached = false
-                    return false
+
                 }
             })
         }
@@ -262,27 +258,33 @@ const GameController = (() => {
         // iterateMoveArrayAndHaveAIMove()
 
         function iterateBoard(whoseTurn) {
+            checkOpponentWin()
+            checkPlayerWin()
+            console.log(opponentEndReached)
+            console.log(playerEndReached)
+
             //If either side wins, return that score
-            if (checkOpponentWin()) {
+            if (opponentEndReached) {
                 return 10
             }
-            if (checkPlayerWin()) {
+            if (playerEndReached) {
                 return -10
             }
 
             if (whoseTurn == "opponent") {
                 let bestScore = -Infinity
 
+                //Todo: Loops after first (i) iteration to Player, and then back again
                 for (let i=0; i<9; i++) {
-
                     if (futureEmptyArray.includes(i)) {
-                        console.log("opp iterate")
-
-                        futureOpponentArray.push(i)
+                        if (!futureOpponentArray.includes(i)) {
+                            futureOpponentArray.push(i)
+                        }
         
                         let score = iterateBoard("player")
                         score = max(score, bestScore)
 
+                        console.log("opp iterate")
                     }
                 }
 
@@ -295,15 +297,15 @@ const GameController = (() => {
                 let bestScore = Infinity
 
                 for (let i=0; i<9; i++) {
-
                     if (futureEmptyArray.includes(i)) {
-                        console.log("player iterate")
-
-                        futurePlayerArray.push(i)
+                        if (!futurePlayerArray.includes(i)) {
+                            futurePlayerArray.push(i)
+                        }
         
                         let score = iterateBoard("opponent")
                         score = min(score, bestScore)
 
+                        console.log("player iterate")
                     }
                 }
     
