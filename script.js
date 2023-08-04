@@ -234,7 +234,7 @@ const GameController = (() => {
 
         let moveArray = [0, 0, 0, 0, 0, 0, 0, 0, 0]
         
-        const checkOpponentBoard = () => {
+        const checkOpponentWin = () => {
             allWinsArray.forEach(function(value, index) {
                 if (allWinsArray[index].every(array => futureOpponentArray.includes(array))) {
                     endMoveReached = true
@@ -246,7 +246,7 @@ const GameController = (() => {
             })
         }
 
-        const checkPlayerBoard = () => {
+        const checkPlayerWin = () => {
             allWinsArray.forEach(function(value, index) {
                 if (allWinsArray[index].every(array => futurePlayerArray.includes(array))) {
                     endMoveReached = true
@@ -258,28 +258,35 @@ const GameController = (() => {
             })
         }
 
-        iterateBoard()
-        iterateMoveArrayAndHaveAIMove()
+        iterateBoard("opponent")
+        // iterateMoveArrayAndHaveAIMove()
 
         function iterateBoard(whoseTurn) {
             //If either side wins, return that score
-            if (checkOpponentBoard) {
+            if (checkOpponentWin()) {
                 return 10
             }
-            if (checkPlayerBoard) {
+            if (checkPlayerWin()) {
                 return -10
             }
 
             if (whoseTurn == "opponent") {
                 let bestScore = -Infinity
 
-                for (let i=0; i<futureEmptyArray.length; i++) {
-                    futureOpponentArray.push(futureEmptyArray[i])
-                    // futureOpponentArray.splice(futureOpponentArray.length -1, 1)
-    
-                    let score = iterateBoard("player")
-                    score = max(score, bestScore)
+                for (let i=0; i<9; i++) {
+
+                    if (futureEmptyArray.includes(i)) {
+                        console.log("opp iterate")
+
+                        futureOpponentArray.push(i)
+        
+                        let score = iterateBoard("player")
+                        score = max(score, bestScore)
+
+                    }
                 }
+
+                console.log("opp best score is " + bestScore)
     
                 return bestScore
             }
@@ -287,14 +294,21 @@ const GameController = (() => {
             if (whoseTurn == "player") {
                 let bestScore = Infinity
 
-                for (let i=0; i<futureEmptyArray.length; i++) {
-                    futurePlayerArray.push(futureEmptyArray[i])
-                    // futurePlayerArray.splice(futurePlayerArray.length -1, 1)
-    
-                    let score = iterateBoard("opponent")
-                    score = min(score, bestScore)
+                for (let i=0; i<9; i++) {
+
+                    if (futureEmptyArray.includes(i)) {
+                        console.log("player iterate")
+
+                        futurePlayerArray.push(i)
+        
+                        let score = iterateBoard("opponent")
+                        score = min(score, bestScore)
+
+                    }
                 }
     
+                console.log("player best score is " + bestScore)
+
                 return bestScore
             }
 
