@@ -282,7 +282,7 @@ const GameController = (() => {
                         }
         
                         let score = iterateBoard("player")
-                        score = max(score, bestScore)
+                        bestScore = max(score, bestScore)
 
                         console.log("opp iterate")
                     }
@@ -303,7 +303,7 @@ const GameController = (() => {
                         }
         
                         let score = iterateBoard("opponent")
-                        score = min(score, bestScore)
+                        bestScore = min(score, bestScore)
 
                         console.log("player iterate")
                     }
